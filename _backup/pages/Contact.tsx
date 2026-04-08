@@ -1,0 +1,120 @@
+
+import React from 'react';
+import { Mail, MapPin, MessageCircle, Facebook, Instagram, Youtube, ExternalLink } from 'lucide-react';
+
+const ContactPage: React.FC = () => {
+  const CONTACT_NUMBER = "01911-879571";
+  const ADDRESS = "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216";
+
+  const socialLinks = [
+    { 
+      name: 'Facebook', 
+      url: 'https://www.facebook.com/stylestudiomart2024/', 
+      icon: Facebook, 
+      color: 'bg-[#1877F2]',
+      hover: 'hover:bg-[#0d62d1]'
+    },
+    { 
+      name: 'Instagram', 
+      url: 'https://www.instagram.com/shahjahan.khairul79', 
+      icon: Instagram, 
+      color: 'bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]',
+      hover: 'hover:opacity-90'
+    },
+    { 
+      name: 'YouTube', 
+      url: 'https://www.youtube.com/@ShahjahanKhairul79', 
+      icon: Youtube, 
+      color: 'bg-[#FF0000]',
+      hover: 'hover:bg-[#cc0000]'
+    }
+  ];
+
+  return (
+    <div className="bg-brand-50 min-h-screen">
+      <section className="py-24 max-w-7xl mx-auto px-4">
+        <div className="grid md:grid-cols-5 gap-16 items-start">
+          {/* Contact Info & Socials */}
+          <div className="md:col-span-2 space-y-12">
+            <div>
+              <h1 className="text-5xl font-serif text-slate-900 mb-6 leading-tight">Visit Our <br /><span className="italic text-brand-800">Studio</span></h1>
+              <p className="text-slate-500 leading-relaxed text-lg">
+                Experience the artistry in person. We are located in the heart of Mirpur, ready to transform your look with precision and care.
+              </p>
+            </div>
+
+            <div className="space-y-8">
+              <div className="flex items-start space-x-6">
+                <div className="bg-white p-4 rounded-2xl shadow-sm text-brand-900">
+                  <MapPin size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-widest text-xs mb-2">Our Address</h4>
+                  <p className="text-slate-600 leading-relaxed text-sm">{ADDRESS}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-6">
+                <div className="bg-white p-4 rounded-2xl shadow-sm text-brand-900">
+                  <MessageCircle size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-widest text-xs mb-2">Phone / WhatsApp</h4>
+                  <p className="text-slate-600 font-bold text-lg">{CONTACT_NUMBER}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-6">
+                <div className="bg-white p-4 rounded-2xl shadow-sm text-brand-900">
+                  <Mail size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 uppercase tracking-widest text-xs mb-2">Email Us</h4>
+                  <p className="text-slate-600 text-sm">shahjahan.khairul79@gmail.com</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media Buttons */}
+            <div className="pt-8 border-t border-slate-200">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Connect Digitally</h4>
+              <div className="grid grid-cols-1 gap-4">
+                {socialLinks.map((social) => (
+                  <a 
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center justify-between px-8 py-5 rounded-[2rem] text-white transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg ${social.color} ${social.hover}`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <social.icon size={24} />
+                      <span className="font-bold uppercase tracking-widest text-xs">Join us on {social.name}</span>
+                    </div>
+                    <ExternalLink size={16} className="opacity-50" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Google Map Embed */}
+          <div className="md:col-span-3 h-[600px] md:h-[800px] rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl bg-slate-100">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d329.3073613545658!2d90.36956934199728!3d23.806316847966162!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c1006fc192df%3A0x808010443f960817!2sStyle%20studio%20Mart!5e0!3m2!1sen!2sbd!4v1769796157582!5m2!1sen!2sbd" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen={true} 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Style Studio Mart Location"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default ContactPage;

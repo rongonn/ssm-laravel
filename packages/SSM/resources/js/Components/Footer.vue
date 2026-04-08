@@ -1,0 +1,82 @@
+<script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+import { Instagram, Facebook, Youtube, Mail, MapPin, MessageCircle } from 'lucide-vue-next';
+
+const CONTACT_NUMBER = "01911-879571";
+const ADDRESS = "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216";
+const LOGO_URL = "https://via.placeholder.com/150";
+</script>
+
+<template>
+    <footer class="bg-slate-900 text-slate-400 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-1">
+                    <Link href="/" class="flex items-center space-x-3 mb-8 group">
+                        <img 
+                            :src="LOGO_URL" 
+                            alt="Style Studio Mart" 
+                            class="h-12 w-12 rounded-xl object-cover border border-slate-700 group-hover:border-brand-400 transition-colors"
+                        />
+                        <span class="text-2xl font-serif font-bold text-white tracking-tight uppercase">
+                            Style Studio Mart
+                        </span>
+                    </Link>
+                    <p class="leading-relaxed mb-8">
+                        Premium salon and wellness experience dedicated to redefining beauty standards through artisanal techniques and luxury care.
+                    </p>
+                    <div class="flex space-x-5">
+                        <a href="https://www.facebook.com/stylestudiomart2024/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Facebook :size="22" /></a>
+                        <a href="https://www.instagram.com/shahjahan.khairul79" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Instagram :size="22" /></a>
+                        <a href="https://www.youtube.com/@ShahjahanKhairul79" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Youtube :size="22" /></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-8">Navigation</h4>
+                    <ul class="space-y-4">
+                        <li><Link href="/services" class="hover:text-brand-300 transition-colors">Our Services</Link></li>
+                        <li><Link href="/products" class="hover:text-brand-300 transition-colors">Product Shop</Link></li>
+                        <li><Link href="/about" class="hover:text-brand-300 transition-colors">About Team</Link></li>
+                        <li><Link href="/contact" class="hover:text-brand-300 transition-colors">Contact Us</Link></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-8">Opening Hours</h4>
+                    <ul class="space-y-4">
+                        <li class="flex justify-between"><span>Mon - Fri</span> <span class="text-white">9am - 8pm</span></li>
+                        <li class="flex justify-between"><span>Saturday</span> <span class="text-white">10am - 6pm</span></li>
+                        <li class="flex justify-between"><span>Sunday</span> <span class="text-white">Closed</span></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-8">Contact Info</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start space-x-3">
+                            <MapPin :size="20" class="text-brand-400 flex-shrink-0" />
+                            <span class="text-sm leading-relaxed">{{ ADDRESS }}</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <MessageCircle :size="20" class="text-brand-400" />
+                            <span>{{ CONTACT_NUMBER }}</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <Mail :size="20" class="text-brand-400" />
+                            <span class="text-sm">shahjahan.khairul79@gmail.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm">
+                <p>© 2024 Style Studio Mart. All Rights Reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="hover:text-white">Privacy Policy</a>
+                    <a href="#" class="hover:text-white">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</template>
