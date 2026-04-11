@@ -12,9 +12,9 @@ const EMAIL = computed(() => (settings.value as any).company_email || "info@styl
 const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage/${(settings.value as any).company_logo}` : "https://via.placeholder.com/150");
 const APP_NAME = computed(() => (settings.value as any).application_name || "Style Studio Mart");
 const APP_SLOGAN = computed(() => (settings.value as any).application_slogan || "Premium salon and wellness experience.");
-const FB_URL = computed(() => (settings.value as any).facebook_url || "#");
-const INSTA_URL = computed(() => (settings.value as any).instagram_url || "#");
-const YT_URL = computed(() => (settings.value as any).youtube_url || "#");
+const FB_URL = computed(() => (settings.value as any).facebook_url || "https://www.facebook.com/stylestudiomart2024/");
+const INSTA_URL = computed(() => (settings.value as any).instagram_url || "https://www.instagram.com/shahjahan.khairul79");
+const YT_URL = computed(() => (settings.value as any).youtube_url || "https://www.youtube.com/@ShahjahanKhairul79");
 const FOOTER_TEXT = computed(() => (settings.value as any).footer_text || "© 2024 Style Studio Mart. All Rights Reserved.");
 </script>
 
@@ -56,9 +56,14 @@ const FOOTER_TEXT = computed(() => (settings.value as any).footer_text || "© 20
                 <div>
                     <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-8">Opening Hours</h4>
                     <ul class="space-y-4">
-                        <li class="flex justify-between"><span>Mon - Fri</span> <span class="text-white">9am - 8pm</span></li>
-                        <li class="flex justify-between"><span>Saturday</span> <span class="text-white">10am - 6pm</span></li>
-                        <li class="flex justify-between"><span>Sunday</span> <span class="text-white">Closed</span></li>
+                        <li class="flex justify-between"><span>Saturday – Thursday</span> <span class="text-white">10am – 10pm</span></li>
+                        <li class="flex justify-between"><span>Friday</span> <span class="text-white">10am – 10pm</span></li>
+                        <li class="pt-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-900/40 px-3 py-1.5 rounded-full">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Open Every Day
+                            </span>
+                        </li>
                     </ul>
                 </div>
 
@@ -84,8 +89,8 @@ const FOOTER_TEXT = computed(() => (settings.value as any).footer_text || "© 20
             <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm">
                 <p v-html="FOOTER_TEXT"></p>
                 <div class="flex space-x-6">
-                    <a href="#" class="hover:text-white">Privacy Policy</a>
-                    <a href="#" class="hover:text-white">Terms of Service</a>
+                    <Link href="/privacy-policy" class="hover:text-white transition-colors">Privacy Policy</Link>
+                    <Link href="/terms-of-service" class="hover:text-white transition-colors">Terms of Service</Link>
                 </div>
             </div>
         </div>

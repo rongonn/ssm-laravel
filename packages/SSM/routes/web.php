@@ -13,6 +13,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/about', [SSM\Http\Controllers\AboutController::class, 'index'])->name('about');
     Route::get('/about/team/{id}', [SSM\Http\Controllers\AboutController::class, 'teamMember'])->name('about.team');
     Route::get('/contact', [SSM\Http\Controllers\ContactController::class, 'index'])->name('contact');
+    Route::get('/privacy-policy', [SSM\Http\Controllers\LegalController::class, 'privacy'])->name('privacy');
+    Route::get('/terms-of-service', [SSM\Http\Controllers\LegalController::class, 'terms'])->name('terms');
     
     Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
