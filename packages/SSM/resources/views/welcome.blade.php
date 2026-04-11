@@ -72,7 +72,6 @@
                 <li class="nav-item"><a class="nav-link px-3" href="#products">Products</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="#team">Team</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="#gallery">Gallery</a></li>
-                <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-lg-3 px-4" href="{{ route('login') }}">Login</a></li>
             </ul>
         </div>
     </div>

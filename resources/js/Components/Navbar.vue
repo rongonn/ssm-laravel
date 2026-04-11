@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Menu, X, User, LogIn } from 'lucide-vue-next';
+import { Menu, X, User } from 'lucide-vue-next';
 
 const isOpen = ref(false);
 
@@ -70,15 +70,7 @@ const isActive = (path: string) => {
                             <span>Admin</span>
                         </Link>
                     </template>
-                    <template v-else>
-                        <Link
-                            href="/login"
-                            class="flex items-center space-x-2 bg-brand-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-800 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/10"
-                        >
-                            <LogIn :size="18" />
-                            <span>Login</span>
-                        </Link>
-                    </template>
+
                 </div>
 
                 <div class="md:hidden flex items-center">
@@ -119,16 +111,7 @@ const isActive = (path: string) => {
                         <span>Admin Dashboard</span>
                     </Link>
                 </template>
-                <template v-else>
-                    <Link
-                        href="/login"
-                        @click="isOpen = false"
-                        class="flex items-center justify-center space-x-2 w-full mt-4 bg-brand-900 text-white px-6 py-4 rounded-xl text-lg font-semibold"
-                    >
-                        <LogIn :size="20" />
-                        <span>Login</span>
-                    </Link>
-                </template>
+
             </div>
         </div>
     </nav>
