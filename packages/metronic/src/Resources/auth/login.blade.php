@@ -7,11 +7,32 @@
 <style>
     .lp-brand-logo {
         width: auto !important;
-        height: 90px !important;
+        height: 180px !important;
+        max-width: 280px !important;
+        object-fit: contain !important;
+        filter: drop-shadow(0 16px 40px rgba(59,130,246,0.35)) !important;
+    }
+    .lp-logo-ring {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.9), rgba(219,234,254,0.6));
+        box-shadow: 0 0 0 12px rgba(59,130,246,0.08), 0 0 0 24px rgba(59,130,246,0.04), 0 20px 60px rgba(59,130,246,0.2);
+        margin-bottom: 0.5rem;
+        animation: logoBreath 5s ease-in-out infinite alternate;
     }
     .lp-card-logo {
         width: auto !important;
-        height: 65px !important;
+        height: 100px !important;
+        max-width: 200px !important;
+        object-fit: contain !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 0.75rem !important;
     }
 </style>
 @endpush
@@ -48,7 +69,7 @@
         <div class="lp-blob lp-blob-3"></div>
 
         <div class="lp-brand">
-            <a href="/">
+            <a href="/" class="lp-logo-ring">
                 <img
                     src="{{ isset(settings()->company_logo) ? Storage::url(settings()->company_logo) : asset('isotope/metronic/img/isotopeit.png') }}"
                     alt="{{ settings()->application_name ?? 'Bioshah' }}"
@@ -62,12 +83,6 @@
             @else
                 <div class="lp-slogan">Premium salon and wellness experience dedicated to redefining beauty standards through artisanal techniques and luxury care.</div>
             @endif
-
-            <img
-                src="{{ asset('isotope/theranuclius/img/Login.jpg.jpeg') }}"
-                alt="Therapy Centre"
-                class="lp-illustration"
-            />
 
             <div class="lp-chips">
                 <span class="lp-chip"><span class="lp-chip-dot"></span> Secure & Private</span>

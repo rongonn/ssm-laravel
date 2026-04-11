@@ -2,7 +2,7 @@
     <div class="aside-logo flex-column-auto" id="kt_aside_logo">
         <a href="/">
             <img alt="Logo" style="filter: drop-shadow(rgb(255, 255, 255) 5px 2px 10px);"
-                src="{{ isset(settings()->company_logo) ? Storage::url(settings()->company_logo) : asset('isotope/metronic/img/isotopeit.png') }}" class="h-50px logo" />
+                src="{{ isset(settings()->company_logo) ? Storage::url(settings()->company_logo) : asset('isotope/metronic/img/isotopeit.png') }}" class="h-200px logo" />
         </a>
         <div id="kt_aside_toggle" class="btn btn-icon w-auto px-0 btn-active-color-primary aside-toggle me-n2"
             data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body"
