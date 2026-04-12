@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 import { Instagram, Facebook, Youtube, Mail, MapPin, MessageCircle } from 'lucide-vue-next';
 
-const CONTACT_NUMBER = "01911-879571";
-const ADDRESS = "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216";
-const LOGO_URL = "https://via.placeholder.com/150";
+const page = usePage();
+const settings = computed(() => (page.props.settings as any) || {});
+
+const CONTACT_NUMBER = computed(() => settings.value.company_phone || "01911-879571");
+const ADDRESS = computed(() => settings.value.company_address || "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216");
+const EMAIL = computed(() => settings.value.company_email || "shahjahan.khairul79@gmail.com");
+const LOGO_URL = computed(() => settings.value.company_logo ? `/storage/${settings.value.company_logo}` : "https://via.placeholder.com/150");
+const APP_NAME = computed(() => settings.value.application_name || "Bioshah.com");
+const APP_SLOGAN = computed(() => settings.value.application_slogan || "Premium salon and wellness experience.");
+const FB_URL = computed(() => settings.value.facebook_url || "https://www.facebook.com/stylestudiomart2024/");
+const INSTA_URL = computed(() => settings.value.instagram_url || "https://www.instagram.com/shahjahan.khairul79");
+const YT_URL = computed(() => settings.value.youtube_url || "https://www.youtube.com/@ShahjahanKhairul79");
+const FOOTER_TEXT = computed(() => settings.value.footer_text || `© ${new Date().getFullYear()} Bioshah.com. All Rights Reserved.`);
 </script>
 
 <template>
@@ -15,20 +26,20 @@ const LOGO_URL = "https://via.placeholder.com/150";
                     <Link href="/" class="flex items-center space-x-3 mb-8 group">
                         <img 
                             :src="LOGO_URL" 
-                            alt="Style Studio Mart" 
+                            alt="Logo" 
                             class="h-12 w-12 rounded-xl object-cover border border-slate-700 group-hover:border-brand-400 transition-colors"
                         />
                         <span class="text-2xl font-serif font-bold text-white tracking-tight uppercase">
-                            Style Studio Mart
+                            {{ APP_NAME }}
                         </span>
                     </Link>
                     <p class="leading-relaxed mb-8">
-                        Premium salon and wellness experience dedicated to redefining beauty standards through artisanal techniques and luxury care.
+                        {{ APP_SLOGAN }}
                     </p>
                     <div class="flex space-x-5">
-                        <a href="https://www.facebook.com/stylestudiomart2024/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Facebook :size="22" /></a>
-                        <a href="https://www.instagram.com/shahjahan.khairul79" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Instagram :size="22" /></a>
-                        <a href="https://www.youtube.com/@ShahjahanKhairul79" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Youtube :size="22" /></a>
+                        <a :href="FB_URL" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Facebook :size="22" /></a>
+                        <a :href="INSTA_URL" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Instagram :size="22" /></a>
+                        <a :href="YT_URL" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-slate-400"><Youtube :size="22" /></a>
                     </div>
                 </div>
                 
@@ -69,14 +80,14 @@ const LOGO_URL = "https://via.placeholder.com/150";
                         </li>
                         <li class="flex items-center space-x-3">
                             <Mail :size="20" class="text-brand-400" />
-                            <span class="text-sm">shahjahan.khairul79@gmail.com</span>
+                            <span class="text-sm">{{ EMAIL }}</span>
                         </li>
                     </ul>
                 </div>
             </div>
             
             <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm">
-                <p>© {{ new Date().getFullYear() }} Style Studio Mart. All Rights Reserved.</p>
+                <p v-html="FOOTER_TEXT"></p>
                 <div class="flex space-x-6">
                     <Link href="/privacy-policy" class="hover:text-white transition-colors">Privacy Policy</Link>
                     <Link href="/terms-of-service" class="hover:text-white transition-colors">Terms of Service</Link>

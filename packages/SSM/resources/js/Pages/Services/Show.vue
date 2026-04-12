@@ -9,11 +9,17 @@ const props = defineProps<{
     service: any;
 }>();
 
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
+const settings = computed(() => page.props.settings || {});
+const APP_NAME = computed(() => (settings.value as any).application_name || 'Bioshah.com');
+
 const WHATSAPP_NUMBER = "01911-879571";
 
 const openWhatsApp = () => {
     if (!props.service) return;
-    const message = encodeURIComponent(`Hello Style Studio Mart! I'm interested in the service: ${props.service.name} (Category: ${props.service.category}, Price: ৳${props.service.price}). Can I book an appointment?`);
+    const message = encodeURIComponent(`Hello ${APP_NAME.value}! I'm interested in the service: ${props.service.name} (Category: ${props.service.category}, Price: ৳${props.service.price}). Can I book an appointment?`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('-', '')}?text=${message}`, '_blank');
 };
 
@@ -121,7 +127,7 @@ onMounted(() => {
                             <p class="text-slate-500 font-medium italic">
                                 "Our goal is to redefine your daily beauty ritual through expertise and unparalleled attention to detail."
                             </p>
-                            <p class="text-brand-900 font-bold mt-4 uppercase tracking-widest text-xs">— Style Studio Mart Specialist</p>
+                            <p class="text-brand-900 font-bold mt-4 uppercase tracking-widest text-xs">— {{ APP_NAME }} Specialist</p>
                         </div>
                     </div>
                 </div>

@@ -11,6 +11,7 @@ const props = defineProps<{
 const page = usePage();
 const settings = computed(() => page.props.settings || {});
 const BANNER_URL = computed(() => (settings.value as any).about_banner ? `/storage/${(settings.value as any).about_banner}` : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800");
+const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 </script>
 
 <template>
@@ -26,7 +27,7 @@ const BANNER_URL = computed(() => (settings.value as any).about_banner ? `/stora
                         <div class="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(67,48,43,0.3)] border-[6px] border-white transition-all duration-700 group-hover:scale-[1.01] bg-slate-100">
                             <img 
                                 :src="BANNER_URL" 
-                                alt="Style Studio Mart Master Artisan" 
+                                :alt="`${APP_NAME} Master Artisan`" 
                                 class="w-full h-full object-cover object-center"
                             />
                             <div class="absolute inset-0 bg-gradient-to-t from-brand-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -60,7 +61,7 @@ const BANNER_URL = computed(() => (settings.value as any).about_banner ? `/stora
                         
                         <div class="space-y-6">
                             <p class="text-xl text-slate-600 leading-relaxed font-medium">
-                                Style Studio Mart brings the future of aesthetic care to you. Since 2023, we have committed to delivering results that speak for themselves.
+                                {{ APP_NAME }} brings the future of aesthetic care to you. Since 2023, we have committed to delivering results that speak for themselves.
                             </p>
                             <p class="text-lg text-slate-500 leading-relaxed">
                                 As seen in our studio, we invest in high-end, certified technology to ensure every treatment is effective and painless. Our master artisans are trained to handle the most complex aesthetic challenges with precision and care. 

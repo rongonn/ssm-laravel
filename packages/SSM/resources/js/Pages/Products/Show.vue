@@ -10,6 +10,12 @@ const props = defineProps<{
     relatedProducts: any[];
 }>();
 
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+const page = usePage();
+const settings = computed(() => page.props.settings || {});
+const APP_NAME = computed(() => (settings.value as any).application_name || 'Bioshah.com');
+
 const mousePos = ref({ x: 0, y: 0 });
 const isHovering = ref(false);
 const scrollRef = ref<HTMLElement | null>(null);
@@ -34,7 +40,7 @@ const scroll = (direction: 'left' | 'right') => {
 
 const openWhatsApp = () => {
     if (!props.product) return;
-    const message = encodeURIComponent(`Hello Style Studio Mart! I'm interested in the product: ${props.product.name} (Brand: ${props.product.brand}, Price: ৳${props.product.price}). Is it available?`);
+    const message = encodeURIComponent(`Hello ${APP_NAME.value}! I'm interested in the product: ${props.product.name} (Brand: ${props.product.brand}, Price: ৳${props.product.price}). Is it available?`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('-', '')}?text=${message}`, '_blank');
 };
 

@@ -11,6 +11,7 @@ const CONTACT_NUMBER = computed(() => (settings.value as any).company_phone || "
 const ADDRESS = computed(() => (settings.value as any).company_address || "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216");
 const EMAIL = computed(() => (settings.value as any).company_email || "shahjahan.khairul79@gmail.com");
 const BANNER_URL = computed(() => (settings.value as any).contact_banner ? `/storage/${(settings.value as any).contact_banner}` : "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?auto=format&fit=crop&q=80&w=2000");
+const APP_NAME = computed(() => (settings.value as any).application_name || 'Bioshah.com');
 
 const socialLinks = computed(() => [
     { 
@@ -125,7 +126,7 @@ const socialLinks = computed(() => [
                             allowfullscreen="true" 
                             loading="lazy" 
                             referrerpolicy="no-referrer-when-downgrade"
-                            title="Style Studio Mart Location"
+                            :title="`${APP_NAME} Location`"
                         ></iframe>
                     </div>
                 </div>

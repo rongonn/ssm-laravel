@@ -15,7 +15,7 @@ const LOGO_URL = computed(() => {
         : "https://via.placeholder.com/150";
 });
 
-const APP_NAME = computed(() => settings.value.application_name || 'Style Studio Mart');
+const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com');
 
 const navLinks = [
     { name: 'Home', path: '/' },

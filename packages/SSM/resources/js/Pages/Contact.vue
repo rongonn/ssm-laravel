@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
 import { Mail, MapPin, MessageCircle, Facebook, Instagram, Youtube, ExternalLink } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+
+const page = usePage();
+const settings = computed(() => page.props.settings || {});
+const APP_NAME = computed(() => (settings.value as any).application_name || 'Bioshah.com');
 
 const CONTACT_NUMBER = "01911-879571";
 const ADDRESS = "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216";
@@ -111,7 +116,7 @@ const socialLinks = [
                             allowfullscreen="true" 
                             loading="lazy" 
                             referrerpolicy="no-referrer-when-downgrade"
-                            title="Style Studio Mart Location"
+                            :title="`${APP_NAME} Location`"
                         ></iframe>
                     </div>
                 </div>

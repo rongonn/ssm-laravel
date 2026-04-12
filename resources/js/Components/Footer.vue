@@ -10,12 +10,12 @@ const CONTACT_NUMBER = computed(() => (settings.value as any).company_phone || "
 const ADDRESS = computed(() => (settings.value as any).company_address || "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh");
 const EMAIL = computed(() => (settings.value as any).company_email || "info@style-studio-mart.com");
 const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage/${(settings.value as any).company_logo}` : "https://via.placeholder.com/150");
-const APP_NAME = computed(() => (settings.value as any).application_name || "Style Studio Mart");
+const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 const APP_SLOGAN = computed(() => (settings.value as any).application_slogan || "Premium salon and wellness experience.");
 const FB_URL = computed(() => (settings.value as any).facebook_url || "https://www.facebook.com/stylestudiomart2024/");
 const INSTA_URL = computed(() => (settings.value as any).instagram_url || "https://www.instagram.com/shahjahan.khairul79");
 const YT_URL = computed(() => (settings.value as any).youtube_url || "https://www.youtube.com/@ShahjahanKhairul79");
-const FOOTER_TEXT = computed(() => (settings.value as any).footer_text || "© 2024 Style Studio Mart. All Rights Reserved.");
+const FOOTER_TEXT = computed(() => (settings.value as any).footer_text || `© ${new Date().getFullYear()} Bioshah.com. All Rights Reserved.`);
 </script>
 
 <template>

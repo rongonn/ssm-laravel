@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { Instagram, Facebook, MessageCircle, ArrowRight, Sparkles } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
     team: any[];
 }>();
+
+const page = usePage();
+const settings = computed(() => (page.props.settings as any) || {});
+const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com');
 </script>
 
 <template>
@@ -21,7 +26,7 @@ const props = defineProps<{
                         <div class="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(67,48,43,0.3)] border-[6px] border-white transition-all duration-700 group-hover:scale-[1.01] bg-slate-100">
                             <img 
                                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" 
-                                alt="Style Studio Mart Master Artisan" 
+                                :alt="`${APP_NAME} Master Artisan`" 
                                 class="w-full h-full object-cover object-center"
                             />
                             <div class="absolute inset-0 bg-gradient-to-t from-brand-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -55,7 +60,7 @@ const props = defineProps<{
                         
                         <div class="space-y-6">
                             <p class="text-xl text-slate-600 leading-relaxed font-medium">
-                                Style Studio Mart brings the future of aesthetic care to you. Since 2023, we have committed to delivering results that speak for themselves.
+                                {{ APP_NAME }} brings the future of aesthetic care to you. Since 2023, we have committed to delivering results that speak for themselves.
                             </p>
                             <p class="text-lg text-slate-500 leading-relaxed">
                                 As seen in our studio, we invest in high-end, certified technology to ensure every treatment is effective and painless. Our master artisans are trained to handle the most complex aesthetic challenges with precision and care. 

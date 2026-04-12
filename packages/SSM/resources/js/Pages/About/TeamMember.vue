@@ -2,11 +2,17 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Facebook, Instagram, MessageCircle, Star, Tag, Quote } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps<{
     id: string;
     member: any;
 }>();
+
+const page = usePage();
+const settings = computed(() => (page.props.settings as any) || {});
+const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com');
 </script>
 
 <template>
@@ -73,7 +79,7 @@ const props = defineProps<{
                             <div class="relative">
                                 <Quote class="absolute -left-8 -top-4 text-brand-100 w-16 h-16 -z-10" />
                                 <p class="text-slate-600 text-xl leading-relaxed font-light italic">
-                                    {{ props.member.bio || "This master artisan has dedicated years to perfecting their craft, ensuring that every client receives a world-class beauty experience at Style Studio Mart." }}
+                                    {{ props.member.bio || `This master artisan has dedicated years to perfecting their craft, ensuring that every client receives a world-class beauty experience at ${APP_NAME}.` }}
                                 </p>
                             </div>
                         </div>

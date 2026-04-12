@@ -4,10 +4,17 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { Menu, X, User, LogIn } from 'lucide-vue-next';
 
 const isOpen = ref(false);
-const LOGO_URL = "https://via.placeholder.com/150";
-
 const page = usePage();
 const session = computed(() => page.props.auth?.user);
+const settings = computed(() => (page.props.settings as any) || {});
+
+const LOGO_URL = computed(() => {
+    return settings.value.company_logo
+        ? `/storage/${settings.value.company_logo}`
+        : "https://via.placeholder.com/150";
+});
+
+const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com');
 
 const navLinks = [
     { name: 'Home', path: '/' },
@@ -31,11 +38,11 @@ const isActive = (path: string) => {
                     <Link href="/" class="flex-shrink-0 flex items-center group space-x-3">
                         <img 
                             :src="LOGO_URL" 
-                            alt="Style Studio Mart Logo" 
-                            class="h-10 w-10 md:h-12 md:w-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform border border-brand-100"
+                            alt="Logo" 
+                            class="h-14 w-14 md:h-16 md:w-16 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform border border-brand-100"
                         />
                         <span class="text-xl md:text-2xl font-serif font-bold text-brand-900 tracking-tight group-hover:text-brand-600 transition-colors uppercase">
-                            Style Studio Mart
+                            {{ APP_NAME }}
                         </span>
                     </Link>
                 </div>

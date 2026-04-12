@@ -2,11 +2,17 @@
 import { Head } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Shield, Eye, Lock, Server, UserCheck, RefreshCw } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const settings = computed(() => page.props.settings || {});
+const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 </script>
 
 <template>
     <PublicLayout>
-        <Head title="Privacy Policy | Style Studio Mart" />
+        <Head :title="`Privacy Policy | ${APP_NAME}`" />
 
         <!-- Page Hero -->
         <section class="relative bg-brand-900 text-white py-24 overflow-hidden">
@@ -30,7 +36,7 @@ import { Shield, Eye, Lock, Server, UserCheck, RefreshCw } from 'lucide-vue-next
                 <!-- Intro -->
                 <div class="prose prose-lg max-w-none mb-16">
                     <p class="text-slate-600 text-lg leading-relaxed">
-                        At <strong class="text-brand-900">Style Studio Mart</strong>, your privacy is our priority. This Privacy Policy explains how we collect, use, and safeguard your personal information when you visit our website or use our services.
+                        At <strong class="text-brand-900">{{ APP_NAME }}</strong>, your privacy is our priority. This Privacy Policy explains how we collect, use, and safeguard your personal information when you visit our website or use our services.
                     </p>
                 </div>
 
@@ -81,7 +87,7 @@ import { Shield, Eye, Lock, Server, UserCheck, RefreshCw } from 'lucide-vue-next
                                 Your data is stored securely on our servers. We do <strong>not</strong> sell, trade, or rent your personal information to third parties. We may share anonymized, aggregated data for analytical purposes only.
                             </p>
                             <p class="text-slate-600 leading-relaxed">
-                                We may disclose your information only if required by law or to protect the rights and safety of Style Studio Mart, its customers, or others.
+                                We may disclose your information only if required by law or to protect the rights and safety of {{ APP_NAME }}, its customers, or others.
                             </p>
                         </div>
                     </div>

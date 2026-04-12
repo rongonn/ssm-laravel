@@ -2,11 +2,17 @@
 import { Head } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { FileText, ShoppingCart, Ban, AlertTriangle, Scale, Mail } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const settings = computed(() => page.props.settings || {});
+const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 </script>
 
 <template>
     <PublicLayout>
-        <Head title="Terms of Service | Style Studio Mart" />
+        <Head :title="`Terms of Service | ${APP_NAME}`" />
 
         <!-- Page Hero -->
         <section class="relative bg-brand-900 text-white py-24 overflow-hidden">
@@ -30,7 +36,7 @@ import { FileText, ShoppingCart, Ban, AlertTriangle, Scale, Mail } from 'lucide-
                 <!-- Intro -->
                 <div class="prose prose-lg max-w-none mb-16">
                     <p class="text-slate-600 text-lg leading-relaxed">
-                        Welcome to <strong class="text-brand-900">Style Studio Mart</strong>. By accessing or using our website and services, you agree to be bound by the following Terms of Service. Please read them carefully before using our platform.
+                        Welcome to <strong class="text-brand-900">{{ APP_NAME }}</strong>. By accessing or using our website and services, you agree to be bound by the following Terms of Service. Please read them carefully before using our platform.
                     </p>
                 </div>
 
@@ -45,7 +51,7 @@ import { FileText, ShoppingCart, Ban, AlertTriangle, Scale, Mail } from 'lucide-
                         <div>
                             <h2 class="text-2xl font-serif text-slate-900 mb-4">Acceptance of Terms</h2>
                             <p class="text-slate-600 leading-relaxed">
-                                By accessing and using the Style Studio Mart website, you acknowledge that you have read, understood, and agree to these Terms of Service. If you do not agree with any part of these terms, please do not use our services.
+                                By accessing and using the {{ APP_NAME }} website, you acknowledge that you have read, understood, and agree to these Terms of Service. If you do not agree with any part of these terms, please do not use our services.
                             </p>
                         </div>
                     </div>
@@ -108,7 +114,7 @@ import { FileText, ShoppingCart, Ban, AlertTriangle, Scale, Mail } from 'lucide-
                         <div>
                             <h2 class="text-2xl font-serif text-slate-900 mb-4">Disclaimer of Warranties</h2>
                             <p class="text-slate-600 leading-relaxed">
-                                Style Studio Mart provides this website and its services on an "as is" basis without warranty of any kind, express or implied. We do not warrant that the website will be uninterrupted, error-free, or free from viruses or harmful components.
+                                {{ APP_NAME }} provides this website and its services on an "as is" basis without warranty of any kind, express or implied. We do not warrant that the website will be uninterrupted, error-free, or free from viruses or harmful components.
                             </p>
                         </div>
                     </div>

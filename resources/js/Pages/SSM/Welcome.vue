@@ -19,6 +19,8 @@ const settings = computed(() => page.props.settings || {});
 const selectedImage = ref<string | null>(null);
 
 const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage/${(settings.value as any).company_logo}` : "https://via.placeholder.com/150");
+const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
+
 const HERO_IMAGE = computed(() => {
     return (settings.value as any).landing_banner 
         ? `/storage/${(settings.value as any).landing_banner}`
@@ -125,7 +127,7 @@ onBeforeUnmount(() => {
                     <img 
                         :src="HERO_IMAGE" 
                         class="w-full h-full object-cover brightness-[0.65]"
-                        alt="Style Studio Mart Hero"
+                        :alt="`${APP_NAME} Hero`"
                     />
                     <div class="absolute inset-0 bg-gradient-to-r from-brand-900/60 via-brand-900/20 to-transparent" />
                 </div>
@@ -134,13 +136,13 @@ onBeforeUnmount(() => {
                     <div class="max-w-2xl animate-in slide-in-from-left duration-1000">
                         <div class="flex items-center space-x-3 text-brand-200 mb-6 tracking-widest uppercase text-sm font-semibold bg-white/10 backdrop-blur-md w-fit px-5 py-2.5 rounded-2xl border border-white/20">
                             <img :src="LOGO_URL" class="h-6 w-6 rounded-lg object-cover" alt="" />
-                            <span>Style Studio Mart Experience</span>
+                            <span>{{ APP_NAME }} Experience</span>
                         </div>
                         <h1 class="text-6xl md:text-8xl font-serif text-white leading-tight mb-8">
                             Where Beauty <br /> Meets <span class="italic">Perfection</span>
                         </h1>
                         <p class="text-xl text-brand-50/90 mb-10 max-w-lg leading-relaxed">
-                            Step into a world of curated beauty experiences and timeless elegance at Style Studio Mart. 
+                            Step into a world of curated beauty experiences and timeless elegance at {{ APP_NAME }}. 
                             Discover premium products and artistry.
                         </p>
                         <div class="flex">
@@ -465,7 +467,7 @@ onBeforeUnmount(() => {
                 <div class="relative z-10 max-w-7xl mx-auto px-4 text-center">
                     <h2 class="text-4xl md:text-6xl font-serif mb-8">Ready to Radiate?</h2>
                     <p class="text-xl text-brand-200 mb-12 max-w-2xl mx-auto leading-relaxed">
-                        Join the Style Studio Mart family today. Experience premium care and professional products.
+                        Join the {{ APP_NAME }} family today. Experience premium care and professional products.
                     </p>
                     <div class="flex justify-center">
                         <Link href="/contact" class="bg-white text-brand-900 px-12 py-5 rounded-full text-lg font-bold hover:bg-brand-50 transition-all shadow-xl">
