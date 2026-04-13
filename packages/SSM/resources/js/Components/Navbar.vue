@@ -39,7 +39,7 @@ const isActive = (path: string) => {
                         <img 
                             :src="LOGO_URL" 
                             alt="Logo" 
-                            class="h-14 w-14 md:h-16 md:w-16 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform border border-brand-100"
+                            class="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform"
                         />
                         <span class="text-xl md:text-2xl font-serif font-bold text-brand-900 tracking-tight group-hover:text-brand-600 transition-colors uppercase">
                             {{ APP_NAME }}

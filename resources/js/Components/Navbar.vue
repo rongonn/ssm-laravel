@@ -40,7 +40,7 @@ const isActive = (path: string) => {
                         <img 
                             :src="LOGO_URL" 
                             alt="Logo" 
-                            class="h-10 w-10 md:h-12 md:w-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform border border-brand-100"
+                            class="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform"
                         />
                         <span class="text-xl md:text-2xl font-serif font-bold text-brand-900 tracking-tight group-hover:text-brand-600 transition-colors uppercase">
                             {{ APP_NAME }}
@@ -61,15 +61,7 @@ const isActive = (path: string) => {
                         {{ link.name }}
                     </Link>
                     
-                    <template v-if="session">
-                        <Link
-                            href="/admin"
-                            class="flex items-center space-x-2 bg-brand-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-800 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/10"
-                        >
-                            <User :size="18" />
-                            <span>Admin</span>
-                        </Link>
-                    </template>
+
 
                 </div>
 
@@ -101,16 +93,7 @@ const isActive = (path: string) => {
                     {{ link.name }}
                 </Link>
                 
-                <template v-if="session">
-                    <Link
-                        href="/admin"
-                        @click="isOpen = false"
-                        class="flex items-center justify-center space-x-2 w-full mt-4 bg-brand-900 text-white px-6 py-4 rounded-xl text-lg font-semibold"
-                    >
-                        <User :size="20" />
-                        <span>Admin Dashboard</span>
-                    </Link>
-                </template>
+
 
             </div>
         </div>

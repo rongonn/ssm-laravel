@@ -47,7 +47,7 @@
                     </div>
                     <div class="card-body d-flex flex-center flex-column pt-12 p-9">
                         <div class="symbol symbol-150px mb-7">
-                            <img src="{{ $item->image_url ?? 'https://via.placeholder.com/150' }}" alt="image" style="object-fit: cover;" />
+                            <img src="{{ $item->image_url ?? 'https://placehold.co/150x150' }}" alt="image" style="object-fit: cover;" />
                         </div>
                     </div>
                 </div>
@@ -83,8 +83,8 @@
                                     <div class="d-flex flex-column align-items-center">
                                         <div class="mb-3">
                                             <label class="d-block mb-2 text-muted">Current & Preview</label>
-                                            <div class="image-input image-input-outline" style="background-image: url('{{ $item->image_url ?? 'https://via.placeholder.com/150' }}')">
-                                                <img id="edit_preview_{{ $item->id }}" src="{{ $item->image_url ?? 'https://via.placeholder.com/150' }}" class="image-input-wrapper w-125px h-125px" style="object-fit: cover;">
+                                            <div class="image-input image-input-outline" style="background-image: url('{{ $item->image_url ?? 'https://placehold.co/150x150' }}')">
+                                                <img id="edit_preview_{{ $item->id }}" src="{{ $item->image_url ?? 'https://placehold.co/150x150' }}" class="image-input-wrapper w-125px h-125px" style="object-fit: cover;">
                                             </div>
                                         </div>
                                         <input type="file" name="image" class="form-control form-control-solid" accept="image/*" onchange="previewImage(this, 'edit_preview_{{ $item->id }}')" />
@@ -139,7 +139,7 @@
                         <label class="fs-6 fw-semibold mb-2">Image</label>
                         <div class="d-flex flex-column align-items-center">
                             <div class="mb-3">
-                                <img id="add_preview" src="https://via.placeholder.com/150" class="image-input-wrapper w-125px h-125px" style="object-fit: cover; border: 1px solid #eee; border-radius: 0.475rem;">
+                                <img id="add_preview" src="https://placehold.co/150x150" class="image-input-wrapper w-125px h-125px" style="object-fit: cover; border: 1px solid #eee; border-radius: 0.475rem;">
                             </div>
                             <input type="file" name="image" class="form-control form-control-solid" accept="image/*" onchange="previewImage(this, 'add_preview')" required />
                         </div>

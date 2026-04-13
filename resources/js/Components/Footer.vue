@@ -27,11 +27,9 @@ const FOOTER_TEXT = computed(() => (settings.value as any).footer_text || `© ${
                         <img 
                             :src="LOGO_URL" 
                             alt="Logo" 
-                            class="h-12 w-12 rounded-xl object-cover border border-slate-700 group-hover:border-brand-400 transition-colors"
+                            class="h-10 md:h-12 w-auto object-contain group-hover:opacity-80 transition-opacity"
                         />
-                        <span class="text-2xl font-serif font-bold text-white tracking-tight uppercase">
-                            {{ APP_NAME }}
-                        </span>
+
                     </Link>
                     <p class="leading-relaxed mb-8">
                         {{ APP_SLOGAN }}

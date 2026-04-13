@@ -37,7 +37,7 @@
                         <div class="symbol symbol-50px overflow-hidden me-3">
                             <a href="#">
                                 <div class="symbol-label">
-                                    <img src="{{ $product->image_url ?? 'https://via.placeholder.com/50' }}" alt="{{ $product->name }}" class="w-100" />
+                                    <img src="{{ $product->image_url ?? 'https://placehold.co/50x50' }}" alt="{{ $product->name }}" class="w-100" />
                                 </div>
                             </a>
                         </div>
@@ -119,8 +119,8 @@
                                         <div class="d-flex flex-column align-items-center">
                                             <div class="mb-3">
                                                 <label class="d-block mb-2 text-muted">Current & Preview</label>
-                                                <div class="image-input image-input-outline" style="background-image: url('{{ $product->image_url ?? 'https://via.placeholder.com/150' }}')">
-                                                    <img id="edit_preview_{{ $product->id }}" src="{{ $product->image_url ?? 'https://via.placeholder.com/150' }}" class="image-input-wrapper w-125px h-125px" style="object-fit: cover;">
+                                                <div class="image-input image-input-outline" style="background-image: url('{{ $product->image_url ?? 'https://placehold.co/150x150' }}')">
+                                                    <img id="edit_preview_{{ $product->id }}" src="{{ $product->image_url ?? 'https://placehold.co/150x150' }}" class="image-input-wrapper w-125px h-125px" style="object-fit: cover;">
                                                 </div>
                                             </div>
                                             <input type="file" name="image" class="form-control form-control-solid" accept="image/*" onchange="previewImage(this, 'edit_preview_{{ $product->id }}')" />
@@ -190,7 +190,7 @@
                         <label class="fs-6 fw-semibold mb-2">Image</label>
                         <div class="d-flex flex-column align-items-center">
                             <div class="mb-3">
-                                <img id="add_preview" src="https://via.placeholder.com/150" class="image-input-wrapper w-125px h-125px" style="object-fit: cover; border: 1px solid #eee; border-radius: 0.475rem;">
+                                <img id="add_preview" src="https://placehold.co/150x150" class="image-input-wrapper w-125px h-125px" style="object-fit: cover; border: 1px solid #eee; border-radius: 0.475rem;">
                             </div>
                             <input type="file" name="image" class="form-control form-control-solid" accept="image/*" onchange="previewImage(this, 'add_preview')" />
                         </div>
