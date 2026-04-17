@@ -19,7 +19,7 @@ const page = usePage();
 const settings = computed(() => (page.props.settings as any) || {});
 const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com');
 
-const LOGO_URL = "https://via.placeholder.com/150";
+const LOGO_URL = "https://placehold.co/150";
 const HERO_IMAGE = "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=2000";
 
 const productScrollRef = ref<HTMLElement | null>(null);
@@ -245,7 +245,7 @@ const scrollHorizontally = (el: HTMLElement | null, direction: 'left' | 'right')
                         <div v-for="member in props.team" :key="member.id" class="group flex flex-col items-center text-center">
                             <div class="w-full aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-8 relative border-2 border-transparent group-hover:border-brand-300 transition-all duration-500 shadow-lg group-hover:shadow-2xl">
                                 <img 
-                                    :src="member.image_url || 'https://via.placeholder.com/600x800'" 
+                                    :src="member.image_url || 'https://placehold.co/600x800'" 
                                     :alt="member.name" 
                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
                                 />

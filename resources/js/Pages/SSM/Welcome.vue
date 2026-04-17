@@ -18,7 +18,7 @@ const settings = computed(() => page.props.settings || {});
 
 const selectedImage = ref<string | null>(null);
 
-const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage/${(settings.value as any).company_logo}` : "https://via.placeholder.com/150");
+const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage/${(settings.value as any).company_logo}` : "https://placehold.co/150");
 const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 
 const HERO_IMAGE = computed(() => {
@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
                         </div>
                         <div class="p-10 flex-grow flex flex-col items-center text-center">
                             <div class="flex items-center space-x-2 text-brand-500 font-bold text-xs uppercase tracking-widest mb-4">
-                                <span>{{ service.category }}</span>
+                                <span>{{ service.category_item?.name || service.category }}</span>
                                 <span>•</span>
                                 <div class="flex items-center space-x-1">
                                     <Clock :size="14" />
@@ -284,7 +284,8 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                         <div class="p-8 flex-grow flex flex-col items-center text-center">
-                            <p class="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-2">{{ product.brand }}</p>
+                            <p class="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-2">{{ product.category_item?.name || product.category }}</p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{{ product.brand }}</p>
                             <h3 class="text-xl font-serif text-slate-900 mb-4 truncate w-full">{{ product.name }}</h3>
                             <p class="text-2xl font-bold text-brand-900 mb-6">৳{{ product.price }}</p>
                             
@@ -349,7 +350,7 @@ onBeforeUnmount(() => {
                         <div v-for="member in props.team" :key="member.id" class="group flex flex-col items-center text-center">
                             <div class="w-full aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-8 relative border-2 border-transparent group-hover:border-brand-300 transition-all duration-500 shadow-lg group-hover:shadow-2xl">
                                 <img 
-                                    :src="member.image_url || 'https://via.placeholder.com/600x800'" 
+                                    :src="member.image_url || 'https://placehold.co/600x800'" 
                                     :alt="member.name" 
                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
                                 />

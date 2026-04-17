@@ -27,7 +27,7 @@
                     <div class="card-header flex-nowrap pt-5">
                         <div class="card-title d-flex flex-column">
                             <span class="fs-6 fw-bold text-gray-800 me-2">{{ $item->title }}</span>
-                            <span class="text-gray-400 fw-semibold fs-7">{{ $item->category }}</span>
+                            <span class="text-gray-400 fw-semibold fs-7">{{ $item->categoryItem ? $item->categoryItem->name : $item->category }}</span>
                         </div>
                         <div class="card-toolbar">
                             <button class="btn btn-icon btn-color-gray-400 btn-active-color-primary" 
@@ -72,9 +72,10 @@
                                 </div>
                                 <div class="fv-row mb-7">
                                     <label class="required fs-6 fw-semibold mb-2">Category</label>
-                                    <select class="form-select form-select-solid" name="category">
-                                        @foreach(['Hair', 'Skin', 'Nails', 'Interior', 'Events'] as $cat)
-                                        <option value="{{ $cat }}" {{ $item->category == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                    <select class="form-select form-select-solid" name="category_id">
+                                        <option value="">Select Category</option>
+                                        @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}" {{ $item->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -129,9 +130,10 @@
                     </div>
                     <div class="fv-row mb-7">
                         <label class="required fs-6 fw-semibold mb-2">Category</label>
-                        <select class="form-select form-select-solid" name="category">
-                            @foreach(['Hair', 'Skin', 'Nails', 'Interior', 'Events'] as $cat)
-                            <option value="{{ $cat }}">{{ $cat }}</option>
+                        <select class="form-select form-select-solid" name="category_id">
+                            <option value="">Select Category</option>
+                            @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>

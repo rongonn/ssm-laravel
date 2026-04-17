@@ -46,7 +46,7 @@
                             <span>{{ Str::limit($service->description, 50) }}</span>
                         </div>
                     </td>
-                    <td>{{ $service->category }}</td>
+                    <td>{{ $service->categoryItem ? $service->categoryItem->name : $service->category }}</td>
                     <td>৳{{ $service->price }}</td>
                     <td>{{ $service->duration }}</td>
                     <td class="text-end">
@@ -97,9 +97,10 @@
                                     </div>
                                     <div class="fv-row mb-7">
                                         <label class="fs-6 fw-semibold mb-2">Category</label>
-                                        <select class="form-select form-select-solid" name="category">
-                                            @foreach(['Hair', 'Skin', 'Nails', 'Massage', 'Other'] as $cat)
-                                            <option value="{{ $cat }}" {{ $service->category == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                        <select class="form-select form-select-solid" name="category_id">
+                                            <option value="">Select Category</option>
+                                            @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}" {{ $service->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -169,9 +170,10 @@
                     </div>
                     <div class="fv-row mb-7">
                         <label class="fs-6 fw-semibold mb-2">Category</label>
-                        <select class="form-select form-select-solid" name="category">
-                            @foreach(['Hair', 'Skin', 'Nails', 'Massage', 'Other'] as $cat)
-                            <option value="{{ $cat }}">{{ $cat }}</option>
+                        <select class="form-select form-select-solid" name="category_id">
+                            <option value="">Select Category</option>
+                            @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>

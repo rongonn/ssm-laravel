@@ -55,7 +55,7 @@ onUnmounted(() => {
                 
                 <div class="flex items-center justify-center space-x-4">
                     <img 
-                        :src="active.avatar_url || 'https://via.placeholder.com/100'" 
+                        :src="active.avatar_url || 'https://placehold.co/100'" 
                         :alt="active.author"
                         class="w-14 h-14 rounded-full border-2 border-brand-200 object-cover"
                     />

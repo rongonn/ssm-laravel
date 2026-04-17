@@ -6,6 +6,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 const props = defineProps<{
     items: any[];
+    categories: any[];
 }>();
 
 const page = usePage();
@@ -15,12 +16,19 @@ const BANNER_URL = computed(() => (settings.value as any).gallery_banner ? `/sto
 const category = ref('All');
 const selectedImage = ref<string | null>(null);
 
-const categories = ['All', 'Hair', 'Interior', 'Nails', 'Events', 'Skin'];
+const displayCategories = computed(() => {
+    const cats = new Set();
+    props.items.forEach(item => {
+        const name = item.category_item?.name || item.category;
+        if (name) cats.add(name);
+    });
+    return ['All', ...Array.from(cats)].sort();
+});
 
 const filteredItems = computed(() => {
     return category.value === 'All' 
         ? props.items 
-        : props.items.filter(item => item.category === category.value);
+        : props.items.filter(item => (item.category_item?.name || item.category) === category.value);
 });
 </script>
 
@@ -44,7 +52,7 @@ const filteredItems = computed(() => {
             <div class="sticky top-20 z-40 bg-white/80 backdrop-blur-md border-b border-brand-100 py-6">
                 <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-4">
                     <button
-                        v-for="cat in categories"
+                        v-for="cat in displayCategories"
                         :key="cat"
                         @click="category = cat"
                         :class="[
@@ -80,7 +88,7 @@ const filteredItems = computed(() => {
                             />
                             <div class="absolute inset-0 bg-brand-900/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center p-10 text-center">
                                 <Maximize2 class="text-white mb-4 w-8 h-8 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100" />
-                                <span class="text-brand-300 text-[10px] font-black uppercase tracking-widest mb-2">{{ item.category }}</span>
+                                <span class="text-brand-300 text-[10px] font-black uppercase tracking-widest mb-2">{{ item.category_item?.name || item.category }}</span>
                                 <h3 class="text-white text-2xl font-serif font-bold leading-tight">{{ item.title || 'Untitled Work' }}</h3>
                             </div>
                         </div>

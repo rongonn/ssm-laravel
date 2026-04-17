@@ -43,7 +43,7 @@ const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com'
                     <div class="relative group">
                         <div class="aspect-[3/4] rounded-[4rem] overflow-hidden shadow-2xl border-4 border-white">
                             <img 
-                                :src="props.member.image_url || 'https://via.placeholder.com/800x1000'" 
+                                :src="props.member.image_url || 'https://placehold.co/800x1000'" 
                                 :alt="props.member.name" 
                                 class="w-full h-full object-cover"
                             />

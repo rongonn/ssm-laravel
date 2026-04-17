@@ -10,6 +10,11 @@ class Service extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name', 'description', 'price', 'duration', 'category', 'image_url'
+        'name', 'description', 'price', 'duration', 'category_id', 'image_url', 'category'
     ];
+
+    public function categoryItem()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 }

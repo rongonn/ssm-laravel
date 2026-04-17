@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
-import { Mail, MapPin, MessageCircle, Facebook, Instagram, Youtube, ExternalLink } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import { Head, usePage, useForm } from '@inertiajs/vue3';
+import { Mail, MapPin, MessageCircle, Facebook, Instagram, Youtube, ExternalLink, Send, CheckCircle2 } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 const page = usePage();
@@ -36,6 +36,27 @@ const socialLinks = computed(() => [
         hover: 'hover:bg-[#cc0000]'
     }
 ]);
+
+const form = useForm({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+});
+
+const successSent = ref(false);
+
+const sendMessage = () => {
+    form.post(route('contact.store'), {
+        onSuccess: () => {
+            successSent.value = true;
+            form.reset();
+            setTimeout(() => {
+                successSent.value = false;
+            }, 5000);
+        }
+    });
+};
 </script>
 
 <template>
@@ -116,19 +137,90 @@ const socialLinks = computed(() => [
                         </div>
                     </div>
 
-                    <!-- Google Map Embed -->
-                    <div class="md:col-span-3 h-[600px] md:h-[800px] rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl bg-slate-100">
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d329.3073613545658!2d90.36956934199728!3d23.806316847966162!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c1006fc192df%3A0x808010443f960817!2sStyle%20studio%20Mart!5e0!3m2!1sen!2sbd!4v1769796157582!5m2!1sen!2sbd" 
-                            width="100%" 
-                            height="100%" 
-                            style="border: 0" 
-                            allowfullscreen="true" 
-                            loading="lazy" 
-                            referrerpolicy="no-referrer-when-downgrade"
-                            :title="`${APP_NAME} Location`"
-                        ></iframe>
+                    <!-- Contact Form -->
+                    <div class="md:col-span-3">
+                        <div v-if="successSent" class="bg-white p-12 rounded-[3rem] shadow-xl text-center flex flex-col items-center justify-center min-h-[500px] border-4 border-green-50 animate-in fade-in zoom-in duration-500">
+                            <div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-8">
+                                <CheckCircle2 :size="48" />
+                            </div>
+                            <h2 class="text-4xl font-serif text-slate-900 mb-4">Message Received</h2>
+                            <p class="text-slate-500 text-lg">Thank you for reaching out. We have received your inquiry and our team will get back to you shortly.</p>
+                        </div>
+                        
+                        <div v-else class="bg-white p-8 md:p-12 rounded-[3rem] shadow-xl border border-brand-100">
+                            <h3 class="text-3xl font-serif text-slate-900 mb-8">Send Us a <span class="text-brand-800 italic">Message</span></h3>
+                            
+                            <form @submit.prevent="sendMessage" class="space-y-6">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Full Name</label>
+                                        <input 
+                                            v-model="form.name"
+                                            type="text" 
+                                            required
+                                            class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
+                                            placeholder="Your Name"
+                                        />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Email Address</label>
+                                        <input 
+                                            v-model="form.email"
+                                            type="email" 
+                                            required
+                                            class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
+                                            placeholder="your@email.com"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Subject</label>
+                                    <input 
+                                        v-model="form.subject"
+                                        type="text" 
+                                        class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
+                                        placeholder="What can we help you with?"
+                                    />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Your Message</label>
+                                    <textarea 
+                                        v-model="form.message"
+                                        required
+                                        rows="6"
+                                        class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900 resize-none"
+                                        placeholder="Share your thoughts or questions..."
+                                    ></textarea>
+                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    :disabled="form.processing"
+                                    class="w-full bg-brand-900 text-white py-6 rounded-2xl font-bold flex items-center justify-center space-x-3 hover:bg-brand-800 disabled:opacity-50 transition-all shadow-xl shadow-brand-900/20"
+                                >
+                                    <Send v-if="!form.processing" :size="20" />
+                                    <span v-if="form.processing">Sending Message...</span>
+                                    <span v-else>Send Message</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Map Section -->
+            <section class="max-w-7xl mx-auto px-4 pb-24">
+                <div class="h-[600px] rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl bg-slate-100">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d329.3073613545658!2d90.36956934199728!3d23.806316847966162!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c1006fc192df%3A0x808010443f960817!2sStyle%20studio%20Mart!5e0!3m2!1sen!2sbd!4v1769796157582!5m2!1sen!2sbd" 
+                        width="100%" 
+                        height="100%" 
+                        style="border: 0" 
+                        allowfullscreen="true" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        :title="`${APP_NAME} Location`"
+                    ></iframe>
                 </div>
             </section>
         </div>

@@ -12,7 +12,7 @@ const settings = computed(() => page.props.settings || {});
 const LOGO_URL = computed(() => {
     return settings.value.company_logo 
         ? `/storage/${settings.value.company_logo}` 
-        : "https://via.placeholder.com/150";
+        : "https://placehold.co/150";
 });
 
 const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com');

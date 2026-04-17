@@ -94,7 +94,7 @@ const APP_NAME = computed(() => settings.value.application_name || 'Bioshah.com'
                             <div v-for="member in props.team" :key="member.id" class="group text-center flex flex-col items-center">
                                 <div class="w-full aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-8 relative border-2 border-transparent group-hover:border-brand-300 transition-all duration-500 shadow-sm hover:shadow-2xl">
                                     <img 
-                                        :src="member.image_url || 'https://via.placeholder.com/600x800'" 
+                                        :src="member.image_url || 'https://placehold.co/600x800'" 
                                         :alt="member.name" 
                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
                                     />

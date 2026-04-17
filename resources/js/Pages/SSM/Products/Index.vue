@@ -6,6 +6,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 const props = defineProps<{
     products: any[];
+    categories: any[];
 }>();
 
 const page = usePage();
@@ -24,8 +25,12 @@ const mobileSidebarOpen = ref(false);
 
 // Derive unique categories and brands from data
 const allCategories = computed(() => {
-    const cats = new Set(props.products.map(p => p.category).filter(Boolean));
-    return ['All', ...Array.from(cats)];
+    const cats = new Set();
+    props.products.forEach(p => {
+        const name = p.category_item?.name || p.category;
+        if (name) cats.add(name);
+    });
+    return ['All', ...Array.from(cats)].sort();
 });
 
 const allBrands = computed(() => {
@@ -69,7 +74,8 @@ const filteredProducts = computed(() => {
         const q = searchQuery.value.toLowerCase();
 
         const matchesSearch = !q || name.includes(q) || brand.includes(q);
-        const matchesCategory = selectedCategory.value === 'All' || p.category === selectedCategory.value;
+        const productCategory = p.category_item?.name || p.category;
+        const matchesCategory = selectedCategory.value === 'All' || productCategory === selectedCategory.value;
         const matchesBrand = selectedBrands.value.length === 0 || selectedBrands.value.includes(p.brand);
         const price = Number(p.price) || 0;
         const matchesPrice = price >= priceMin.value && price <= priceMax.value;
@@ -245,7 +251,7 @@ const filteredProducts = computed(() => {
                                                 class="text-xs rounded-full px-2 py-0.5"
                                                 :class="selectedCategory === cat ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'"
                                             >
-                                                {{ cat === 'All' ? props.products.length : props.products.filter(p => p.category === cat).length }}
+                                                {{ cat === 'All' ? props.products.length : props.products.filter(p => (p.category_item?.name || p.category) === cat).length }}
                                             </span>
                                         </button>
                                     </div>
@@ -353,7 +359,7 @@ const filteredProducts = computed(() => {
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                     />
                                     <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-brand-900 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-                                        {{ product.category }}
+                                        {{ product.category_item?.name || product.category }}
                                     </div>
                                     <div v-if="Number(product.stock) <= 0" class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase">
                                         Sold Out

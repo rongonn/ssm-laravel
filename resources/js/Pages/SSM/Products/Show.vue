@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, ShoppingBag, ArrowLeft, Tag, ShieldCheck, Truck, RefreshCw, MessageCircle } from 'lucide-vue-next';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ChevronLeft, ChevronRight, ShoppingBag, ArrowLeft, Tag, ShieldCheck, Truck, RefreshCw, MessageCircle, X, CheckCircle2 } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 const props = defineProps<{
@@ -18,6 +18,14 @@ const APP_NAME = computed(() => (settings.value as any).application_name || "Bio
 const mousePos = ref({ x: 0, y: 0 });
 const isHovering = ref(false);
 const scrollRef = ref<HTMLElement | null>(null);
+const showCheckoutModal = ref(false);
+const orderSuccess = ref(false);
+
+const form = useForm({
+    customer_name: '',
+    customer_phone: '',
+    customer_address: '',
+});
 
 const WHATSAPP_NUMBER = "01911-879571";
 
@@ -41,6 +49,19 @@ const openWhatsApp = () => {
     if (!props.product) return;
     const message = encodeURIComponent(`Hello ${APP_NAME.value}! I'm interested in the product: ${props.product.name} (Brand: ${props.product.brand}, Price: ৳${props.product.price}). Is it available?`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('-', '')}?text=${message}`, '_blank');
+};
+
+const submitOrder = () => {
+    form.post(route('products.purchase', props.id), {
+        onSuccess: () => {
+            orderSuccess.value = true;
+            form.reset();
+            setTimeout(() => {
+                showCheckoutModal.value = false;
+                orderSuccess.value = false;
+            }, 3000);
+        },
+    });
 };
 
 onMounted(() => {
@@ -105,15 +126,22 @@ onMounted(() => {
                         </div>
 
                         <!-- CTA Section -->
-                        <div class="space-y-6 pt-4">
+                        <div class="space-y-4 pt-4">
+                            <button 
+                                @click="showCheckoutModal = true"
+                                class="flex items-center justify-center space-x-4 w-full bg-brand-900 text-white py-6 rounded-[2rem] text-xl font-bold shadow-2xl shadow-brand-900/20 hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                                <ShoppingBag :size="28" />
+                                <span>Buy Now</span>
+                            </button>
                             <button 
                                 @click="openWhatsApp"
-                                class="flex items-center justify-center space-x-4 w-full bg-[#25D366] text-white py-6 rounded-[2rem] text-xl font-bold shadow-2xl shadow-green-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                class="flex items-center justify-center space-x-4 w-full bg-[#25D366]/10 text-[#25D366] py-5 rounded-[2rem] text-lg font-bold hover:bg-[#25D366]/20 transition-all"
                             >
-                                <MessageCircle :size="28" />
-                                <span>Purchase via WhatsApp</span>
+                                <MessageCircle :size="24" />
+                                <span>Consult via WhatsApp</span>
                             </button>
-                            <p class="text-center text-slate-400 text-sm italic">Connect with us directly for availability and delivery details.</p>
+                            <p class="text-center text-slate-400 text-sm italic">Secure direct ordering or professional consultation.</p>
                         </div>
 
                         <!-- Quality Seals -->
@@ -194,6 +222,85 @@ onMounted(() => {
                     </Link>
                 </div>
             </section>
+        </div>
+
+        <!-- Checkout Modal -->
+        <div v-if="showCheckoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showCheckoutModal = false"></div>
+            
+            <div class="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                <div v-if="!orderSuccess" class="p-8 md:p-12">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-serif text-slate-900">Confirm Order</h2>
+                            <p class="text-slate-500">Complete your details to place the order.</p>
+                        </div>
+                        <button @click="showCheckoutModal = false" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                            <X :size="24" class="text-slate-400" />
+                        </button>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="bg-brand-50 p-6 rounded-3xl flex items-center space-x-4 mb-8">
+                        <img :src="props.product.image_url" class="w-16 h-16 rounded-xl object-cover shadow-sm" />
+                        <div>
+                            <p class="font-bold text-slate-900">{{ props.product.name }}</p>
+                            <p class="text-brand-900 font-bold">৳{{ props.product.price }}</p>
+                        </div>
+                    </div>
+
+                    <form @submit.prevent="submitOrder" class="space-y-6">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Full Name</label>
+                            <input 
+                                v-model="form.customer_name"
+                                type="text" 
+                                required
+                                class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
+                                placeholder="Enter your name"
+                            />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Phone Number</label>
+                            <input 
+                                v-model="form.customer_phone"
+                                type="tel" 
+                                required
+                                class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
+                                placeholder="01XXX-XXXXXX"
+                            />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Delivery Address</label>
+                            <textarea 
+                                v-model="form.customer_address"
+                                required
+                                rows="3"
+                                class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900 resize-none"
+                                placeholder="Apt, Street, Area, City"
+                            ></textarea>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            :disabled="form.processing"
+                            class="w-full bg-brand-900 text-white py-5 rounded-2xl font-bold flex items-center justify-center space-x-3 hover:translate-y-[-2px] disabled:opacity-50 transition-all shadow-xl shadow-brand-900/20 mt-4"
+                        >
+                            <span v-if="form.processing">Processing...</span>
+                            <span v-else>Confirm Order ৳{{ props.product.price }}</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Success State -->
+                <div v-else class="p-16 flex flex-col items-center text-center">
+                    <div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-8">
+                        <CheckCircle2 :size="48" />
+                    </div>
+                    <h2 class="text-4xl font-serif text-slate-900 mb-4">Order Received!</h2>
+                    <p class="text-slate-500 text-lg">Thank you, {{ form.customer_name }}. We will call you at {{ form.customer_phone }} shortly to confirm your delivery.</p>
+                </div>
+            </div>
         </div>
     </PublicLayout>
 </template>

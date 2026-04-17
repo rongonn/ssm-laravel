@@ -338,7 +338,7 @@ const onFileChange = (e: Event) => {
                                             @click="openViewModal(item)"
                                             class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-slate-100 group-hover:border-brand-200 transition-all cursor-zoom-in"
                                         >
-                                            <img :src="item.image_url || item.avatar_url || 'https://via.placeholder.com/100'" class="w-full h-full object-cover" alt="" />
+                                            <img :src="item.image_url || item.avatar_url || 'https://placehold.co/100'" class="w-full h-full object-cover" alt="" />
                                         </div>
                                     </td>
                                     <td class="px-8 py-5">
@@ -408,7 +408,7 @@ const onFileChange = (e: Event) => {
                         <div class="space-y-6">
                             <div class="aspect-square rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner group relative">
                                 <img 
-                                    :src="viewingItem.image_url || viewingItem.avatar_url || 'https://via.placeholder.com/400'" 
+                                    :src="viewingItem.image_url || viewingItem.avatar_url || 'https://placehold.co/400'" 
                                     class="w-full h-full object-cover" 
                                     alt="" 
                                 />

@@ -15,11 +15,11 @@ class HomeController extends Controller
     public function index()
     {
         return Inertia::render('SSM/Welcome', [
-            'services' => Service::orderBy('created_at', 'desc')->take(10)->get(),
-            'products' => Product::where('is_active', true)->orderBy('created_at', 'desc')->take(10)->get(),
+            'services' => Service::with('categoryItem')->orderBy('created_at', 'desc')->take(10)->get(),
+            'products' => Product::with('categoryItem')->where('is_active', true)->orderBy('created_at', 'desc')->take(10)->get(),
             'team' => Team::orderBy('name')->take(4)->get(),
             'testimonials' => Testimonial::take(10)->get(),
-            'gallery' => Gallery::orderBy('created_at', 'desc')->take(6)->get(),
+            'gallery' => Gallery::with('categoryItem')->orderBy('created_at', 'desc')->take(6)->get(),
         ]);
     }
 }

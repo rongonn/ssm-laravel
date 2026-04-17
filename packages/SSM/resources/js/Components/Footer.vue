@@ -9,7 +9,7 @@ const settings = computed(() => (page.props.settings as any) || {});
 const CONTACT_NUMBER = computed(() => settings.value.company_phone || "01911-879571");
 const ADDRESS = computed(() => settings.value.company_address || "Plot no 14, Tota Mia complex shop no 19, 22 Mirpur 10 Dhaka Bangladesh. Road no 1, 15 Dhaka north city, 1216");
 const EMAIL = computed(() => settings.value.company_email || "shahjahan.khairul79@gmail.com");
-const LOGO_URL = computed(() => settings.value.company_logo ? `/storage/${settings.value.company_logo}` : "https://via.placeholder.com/150");
+const LOGO_URL = computed(() => settings.value.company_logo ? `/storage/${settings.value.company_logo}` : "https://placehold.co/150");
 const APP_NAME = computed(() => settings.value.application_name || "Bioshah.com");
 const APP_SLOGAN = computed(() => settings.value.application_slogan || "Premium salon and wellness experience.");
 const FB_URL = computed(() => settings.value.facebook_url || "https://www.facebook.com/stylestudiomart2024/");

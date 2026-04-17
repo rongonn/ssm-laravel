@@ -6,6 +6,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
 
 const props = defineProps<{
     services: any[];
+    categories: any[];
 }>();
 
 const page = usePage();
@@ -18,9 +19,18 @@ const handleFilter = (cat: string) => {
     category.value = cat;
 };
 
+const displayCategories = computed(() => {
+    const cats = new Set();
+    props.services.forEach(s => {
+        const name = s.category_item?.name || s.category;
+        if (name) cats.add(name);
+    });
+    return ['All', ...Array.from(cats)].sort();
+});
+
 const filteredServices = computed(() => {
     if (category.value === 'All') return props.services;
-    return props.services.filter(s => s.category === category.value);
+    return props.services.filter(s => (s.category_item?.name || s.category) === category.value);
 });
 </script>
 
@@ -44,7 +54,7 @@ const filteredServices = computed(() => {
             <div class="sticky top-20 z-40 bg-white/80 backdrop-blur-md border-b border-brand-100 py-6">
                 <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-4">
                     <button
-                        v-for="cat in ['All', 'Hair', 'Skin', 'Nails', 'Massage']"
+                        v-for="cat in displayCategories"
                         :key="cat"
                         @click="handleFilter(cat)"
                         :class="[
@@ -75,7 +85,7 @@ const filteredServices = computed(() => {
                         </div>
                         <div class="p-10 flex-grow flex flex-col items-center text-center">
                             <ul class="flex items-center space-x-2 text-brand-500 font-bold text-xs uppercase tracking-widest mb-4">
-                                <li>{{ service.category }}</li>
+                                <li>{{ service.category_item?.name || service.category }}</li>
                                 <li>•</li>
                                 <li class="flex items-center space-x-1">
                                     <Clock :size="14" />
