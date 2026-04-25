@@ -22,9 +22,15 @@ const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage
 const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 
 const HERO_IMAGE = computed(() => {
-    return (settings.value as any).landing_banner 
+    const desktop = (settings.value as any).landing_banner 
         ? `/storage/${(settings.value as any).landing_banner}`
         : "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=2000";
+    
+    const mobile = (settings.value as any).mobile_landing_banner 
+        ? `/storage/${(settings.value as any).mobile_landing_banner}`
+        : desktop;
+
+    return { desktop, mobile };
 });
 
 // --- SERVICE CAROUSEL ---
@@ -122,13 +128,16 @@ onBeforeUnmount(() => {
         
         <div class="overflow-x-hidden">
             <!-- Hero Section -->
-            <section class="relative h-[90vh] flex items-center">
+            <section class="relative h-[60vh] md:h-[90vh] flex items-center">
                 <div class="absolute inset-0 z-0">
-                    <img 
-                        :src="HERO_IMAGE" 
-                        class="w-full h-full object-cover brightness-[0.65]"
-                        :alt="`${APP_NAME} Hero`"
-                    />
+                    <picture>
+                        <source media="(max-width: 768px)" :srcset="HERO_IMAGE.mobile">
+                        <img 
+                            :src="HERO_IMAGE.desktop" 
+                            class="w-full h-full object-cover brightness-[0.65]"
+                            :alt="`${APP_NAME} Hero`"
+                        />
+                    </picture>
                     <div class="absolute inset-0 bg-gradient-to-r from-brand-900/60 via-brand-900/20 to-transparent" />
                 </div>
                 
@@ -137,19 +146,6 @@ onBeforeUnmount(() => {
                         <div class="flex items-center space-x-3 text-brand-200 mb-6 tracking-widest uppercase text-sm font-semibold bg-white/10 backdrop-blur-md w-fit px-5 py-2.5 rounded-2xl border border-white/20">
                             <img :src="LOGO_URL" class="h-6 w-auto object-contain" alt="Logo" />
                             <span>{{ APP_NAME }} Experience</span>
-                        </div>
-                        <h1 class="text-6xl md:text-8xl font-serif text-white leading-tight mb-8">
-                            Where Beauty <br /> Meets <span class="italic">Perfection</span>
-                        </h1>
-                        <p class="text-xl text-brand-50/90 mb-10 max-w-lg leading-relaxed">
-                            Step into a world of curated beauty experiences and timeless elegance at {{ APP_NAME }}. 
-                            Discover premium products and artistry.
-                        </p>
-                        <div class="flex">
-                            <Link href="/products" class="flex items-center justify-center space-x-2 bg-white text-brand-900 px-10 py-5 rounded-full text-lg font-bold hover:bg-brand-50 transition-all transform hover:scale-105 shadow-xl">
-                                <ShoppingBag :size="20" />
-                                <span>Shop Products</span>
-                            </Link>
                         </div>
                     </div>
                 </div>

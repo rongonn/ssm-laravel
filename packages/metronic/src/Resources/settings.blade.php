@@ -43,11 +43,11 @@
         </div>
         
         <div class="card-body py-8">
-            <div class="tab-content">
-                {{-- TAB: GENERAL INFO --}}
-                <div class="tab-pane fade show active" id="tab_general" role="tabpanel">
-                    <form action="{{ route(tenant() ? 'settings.store' : 'owner.settings.store') }}" method="POST" enctype="multipart/form-data" id="setting-form">
-                        @csrf
+                <form action="{{ route(tenant() ? 'settings.store' : 'owner.settings.store') }}" method="POST" enctype="multipart/form-data" id="setting-form">
+                    @csrf
+                <div class="tab-content">
+                    {{-- TAB: GENERAL INFO --}}
+                    <div class="tab-pane fade show active" id="tab_general" role="tabpanel">
                         <div class="row g-8">
                             <div class="col-xl-6">
                                 <div class="card bg-light-primary border-0 rounded-4">
@@ -144,7 +144,7 @@
                                     <div class="image-input-container">
                                         <label class="image-uploader shadow-sm" style="height: 150px; background-image: url('{{ isset($settings->company_logo) ? asset('storage/' . $settings->company_logo) : asset('isotope/metronic/img/isotopeit.png') }}')">
                                             <div class="overlay"><i class="fas fa-upload text-white fs-3"></i></div>
-                                            <input type="file" form="setting-form" name="company_logo" accept="image/*" class="d-none preview-input">
+                                            <input type="file" name="company_logo" accept="image/*" class="d-none preview-input">
                                         </label>
                                         <div class="alert alert-dismissible bg-light-primary border border-primary border-dashed d-flex flex-column flex-sm-row w-100 p-4 mt-4">
                                             <i class="fas fa-info-circle fs-3 text-primary me-4 mb-3 mb-sm-0"></i>
@@ -164,7 +164,7 @@
                                     <div class="image-input-container">
                                         <label class="image-uploader shadow-sm" style="height: 150px; background-image: url('{{ isset($settings->login_logo) ? asset('storage/' . $settings->login_logo) : asset('isotope/metronic/img/isotope_p2.png') }}')">
                                             <div class="overlay"><i class="fas fa-upload text-white fs-3"></i></div>
-                                            <input type="file" form="setting-form" name="login_logo" accept="image/*" class="d-none preview-input">
+                                            <input type="file" name="login_logo" accept="image/*" class="d-none preview-input">
                                         </label>
                                         <div class="alert alert-dismissible bg-light-success border border-success border-dashed d-flex flex-column flex-sm-row w-100 p-4 mt-4">
                                             <i class="fas fa-check-circle fs-3 text-success me-4 mb-3 mb-sm-0"></i>
@@ -184,7 +184,7 @@
                                     <div class="image-input-container">
                                         <label class="image-uploader shadow-sm" style="height: 150px; width: 150px; margin: 0 auto; background-image: url('{{ isset($settings->favicon) ? asset('storage/' . $settings->favicon) : asset('isotope/metronic/img/favicon.ico') }}')">
                                             <div class="overlay"><i class="fas fa-upload text-white fs-3"></i></div>
-                                            <input type="file" form="setting-form" name="favicon" accept="image/*" class="d-none preview-input">
+                                            <input type="file" name="favicon" accept="image/*" class="d-none preview-input">
                                         </label>
                                         <div class="alert alert-dismissible bg-light-info border border-info border-dashed d-flex flex-column flex-sm-row w-100 p-4 mt-4">
                                             <i class="fas fa-globe fs-3 text-info me-4 mb-3 mb-sm-0"></i>
@@ -203,21 +203,21 @@
                                     <div class="d-flex justify-content-between align-items-center mb-5">
                                         <h5 class="fw-bolder text-warning mb-0"><i class="fas fa-bullhorn text-warning me-2"></i> Promotional Popup</h5>
                                         <div class="form-check form-switch form-check-custom form-check-solid">
-                                            <input type="hidden" form="setting-form" name="text[popup_status]" value="0">
-                                            <input class="form-check-input" form="setting-form" type="checkbox" name="text[popup_status]" value="1" {{ (settings()->popup_status ?? 0) == 1 ? 'checked' : '' }}>
+                                            <input type="hidden" name="text[popup_status]" value="0">
+                                            <input class="form-check-input" type="checkbox" name="text[popup_status]" value="1" {{ (settings()->popup_status ?? 0) == 1 ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold text-dark">Enable Popup</label>
                                         </div>
                                     </div>
                                     <div class="row g-5">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Popup URL (Link when clicked)</label>
-                                            <input type="text" form="setting-form" name="text[popup_url]" class="form-control form-control-solid" value="{{ settings()->popup_url ?? '' }}">
+                                            <input type="text" name="text[popup_url]" class="form-control form-control-solid" value="{{ settings()->popup_url ?? '' }}">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Popup Image</label>
                                             <label class="image-uploader shadow-sm w-100" style="height: 120px; background-image: url('{{ isset($settings->popup_image) ? asset('storage/' . $settings->popup_image) : '' }}')">
                                                 <div class="overlay"><i class="fas fa-upload text-white fs-3"></i></div>
-                                                <input type="file" form="setting-form" name="popup_image" accept="image/*" class="d-none preview-input">
+                                                <input type="file" name="popup_image" accept="image/*" class="d-none preview-input">
                                             </label>
                                             <div class="alert alert-dismissible bg-light-warning border border-warning border-dashed d-flex flex-column flex-sm-row w-100 p-4 mt-4">
                                                 <i class="fas fa-exclamation-triangle fs-3 text-warning me-4 mb-3 mb-sm-0"></i>
@@ -247,7 +247,8 @@
                     <div class="row g-8">
                         @php
                             $banners = [
-                                'landing_banner' => 'Landing Page Banners', // Main front banner
+                                'landing_banner' => 'Landing Page Banner (Desktop)', 
+                                'mobile_landing_banner' => 'Landing Page Banner (Mobile)',
                                 'services_banner' => 'Services Page Banner',
                                 'products_banner' => 'Products/Apothecary Banner',
                                 'gallery_banner' => 'Artistic Gallery Banner',
@@ -264,15 +265,13 @@
                                         <div class="image-input-container">
                                             <label class="image-uploader shadow-sm w-100" style="height: 180px; background-image: url('{{ isset($settings->$key) ? asset('storage/' . $settings->$key) : '' }}')">
                                                 <div class="overlay"><i class="fas fa-cloud-upload-alt text-white fs-1 mb-2"></i><span class="text-white fw-bold">Click to Upload</span></div>
-                                                <input type="file" form="setting-form" name="{{ $key }}" accept="image/*" class="d-none preview-input">
+                                                <input type="file" name="{{ $key }}" accept="image/*" class="d-none preview-input">
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
-                    </div>
-                    </form> <!-- END FORM here because slider is ajax -->
                 </div>
 
                 {{-- TAB: SLIDER --}}
@@ -329,8 +328,8 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+            </form>
         </div>
     </div>
 

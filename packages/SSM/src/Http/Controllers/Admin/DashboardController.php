@@ -25,6 +25,7 @@ class DashboardController extends Controller
         'gallery'      => Gallery::class,
         'categories'   => Category::class,
         'orders'       => Order::class,
+        'contacts'     => Contact::class,
     ];
 
     public function index()
@@ -166,18 +167,24 @@ class DashboardController extends Controller
             $query->where('product_id', $request->product_id);
         }
 
+        if ($request->filled('source')) {
+            $query->where('source', $request->source);
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('customer_name', 'like', '%' . $search . '%')
-                  ->orWhere('customer_phone', 'like', '%' . $search . '%');
+                  ->orWhere('customer_phone', 'like', '%' . $search . '%')
+                  ->orWhere('order_no', 'like', '%' . $search . '%');
             });
         }
 
         return view('ssm::admin.orders.index', [
             'orders' => $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString(),
             'products' => Product::all(),
-            'statuses' => Order::$statuses
+            'statuses' => Order::$statuses,
+            'sources' => ['Website', 'Manual']
         ]);
     }
 
@@ -186,6 +193,29 @@ class DashboardController extends Controller
         $order = Order::findOrFail($id);
         $order->update(['status' => $request->status]);
         return back()->with('success', 'Order status updated');
+    }
+
+    public function manualOrderStore(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'customer_address' => 'required|string',
+            'total_price' => 'required|numeric'
+        ]);
+
+        Order::create([
+            'product_id' => $request->product_id,
+            'customer_name' => $request->customer_name,
+            'customer_phone' => $request->customer_phone,
+            'customer_address' => $request->customer_address,
+            'total_price' => $request->total_price,
+            'status' => 'New Order',
+            'source' => 'Manual'
+        ]);
+
+        return back()->with('success', 'Manual order created successfully');
     }
 
     // CRUD methods

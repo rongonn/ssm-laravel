@@ -58,8 +58,7 @@ class SettingController extends Controller
                     ['text' => $favicon, 'group' => 'system'],
                 );
             }
-
-            $banners = ['landing_banner', 'services_banner', 'products_banner', 'gallery_banner', 'about_banner', 'contact_banner'];
+            $banners = ['landing_banner', 'mobile_landing_banner', 'services_banner', 'products_banner', 'gallery_banner', 'about_banner', 'contact_banner'];
             foreach ($banners as $banner) {
                 if ($request->hasFile($banner)) {
                     $bannerPath = $this->imageUpload($request->$banner, $banner);

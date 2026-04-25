@@ -32,6 +32,7 @@ Route::middleware(['web'])->group(function () {
 
         // CRUD routes
         Route::get('/orders', [AdminDashboardController::class, 'ordersIndex'])->name('admin.orders');
+        Route::post('/orders/manual', [AdminDashboardController::class, 'manualOrderStore'])->name('admin.orders.manual');
         Route::post('/orders/{id}/status', [AdminDashboardController::class, 'updateOrderStatus'])->name('admin.orders.status');
         Route::post('/store/{table}', [AdminDashboardController::class, 'store'])->name('admin.store');
         Route::post('/update/{table}/{id}', [AdminDashboardController::class, 'update'])->name('admin.update');

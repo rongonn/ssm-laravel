@@ -13,7 +13,8 @@ class Order extends Model
         'customer_phone', 
         'customer_address', 
         'status', 
-        'total_price'
+        'total_price',
+        'source'
     ];
 
     protected static function booted()
@@ -35,6 +36,8 @@ class Order extends Model
 
     public static $statuses = [
         'New Order',
+        'Pending',
+        'Pending Payment',
         'Processing',
         'Shipped',
         'Delivered',
