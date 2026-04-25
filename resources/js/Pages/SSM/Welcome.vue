@@ -134,20 +134,10 @@ onBeforeUnmount(() => {
                         <source media="(max-width: 768px)" :srcset="HERO_IMAGE.mobile">
                         <img 
                             :src="HERO_IMAGE.desktop" 
-                            class="w-full h-full object-cover brightness-[0.65]"
+                            class="w-full h-full object-cover"
                             :alt="`${APP_NAME} Hero`"
                         />
                     </picture>
-                    <div class="absolute inset-0 bg-gradient-to-r from-brand-900/60 via-brand-900/20 to-transparent" />
-                </div>
-                
-                <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <div class="max-w-2xl animate-in slide-in-from-left duration-1000">
-                        <div class="flex items-center space-x-3 text-brand-200 mb-6 tracking-widest uppercase text-sm font-semibold bg-white/10 backdrop-blur-md w-fit px-5 py-2.5 rounded-2xl border border-white/20">
-                            <img :src="LOGO_URL" class="h-6 w-auto object-contain" alt="Logo" />
-                            <span>{{ APP_NAME }} Experience</span>
-                        </div>
-                    </div>
                 </div>
             </section>
 
