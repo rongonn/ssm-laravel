@@ -153,75 +153,83 @@ const buyNow = (product: any) => {
             </section>
 
             <!-- DYNAMIC SERVICES CAROUSEL -->
-            <section class="py-24 bg-brand-50 overflow-hidden">
-                <div class="max-w-7xl mx-auto px-4 mb-12 flex items-center justify-between">
-                    <div class="max-w-xl">
-                        <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Artisanal Rituals</h2>
-                        <p class="text-4xl md:text-5xl font-serif text-slate-900">Our Signature Services</p>
-                    </div>
-                    <div class="flex space-x-4">
-                        <button @click="scrollService('left')" class="p-4 rounded-full border border-slate-200 hover:bg-white text-slate-400 hover:text-brand-900 transition-all shadow-sm" :disabled="serviceIndex === 0" :class="{ 'opacity-40 cursor-not-allowed': serviceIndex === 0 }">
-                            <ChevronLeft :size="24" />
-                        </button>
-                        <button @click="scrollService('right')" class="p-4 rounded-full border border-slate-200 hover:bg-white text-slate-400 hover:text-brand-900 transition-all shadow-sm" :disabled="serviceIndex >= serviceTotalItems - 1" :class="{ 'opacity-40 cursor-not-allowed': serviceIndex >= serviceTotalItems - 1 }">
-                            <ChevronRight :size="24" />
-                        </button>
-                    </div>
+            <section class="py-24 bg-brand-50">
+                <div class="max-w-7xl mx-auto px-4 mb-12">
+                    <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Artisanal Rituals</h2>
+                    <p class="text-4xl md:text-5xl font-serif text-slate-900">Our Signature Services</p>
                 </div>
 
-                <div 
-                    ref="serviceScrollRef"
-                    class="flex overflow-x-auto gap-8 px-[max(1rem,calc((100vw-80rem)/2))] no-scrollbar scroll-smooth pb-4"
-                >
-                    <div 
-                        v-for="service in props.services"
-                        :key="service.id" 
-                        class="min-w-[320px] md:min-w-[400px] bg-white rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
+                <div class="max-w-7xl mx-auto px-4 relative group/slider">
+                    <!-- Navigation Overlays -->
+                    <button 
+                        @click="scrollService('left')" 
+                        class="absolute -left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/slider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
+                        :disabled="serviceIndex === 0"
                     >
-                        <div class="h-64 relative overflow-hidden">
-                            <img 
-                                :src="service.image_url || 'https://picsum.photos/800/600?random=' + service.id" 
-                                :alt="service.name" 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                            <div class="absolute top-4 right-4 bg-brand-900 text-white px-4 py-2 rounded-full font-bold shadow-lg">
-                                ৳{{ service.price }}
-                            </div>
-                        </div>
-                        <div class="p-10 flex-grow flex flex-col items-center text-center">
-                            <div class="flex items-center space-x-2 text-brand-500 font-bold text-xs uppercase tracking-widest mb-4">
-                                <span>{{ service.category_item?.name || service.category }}</span>
-                                <span>•</span>
-                                <div class="flex items-center space-x-1">
-                                    <Clock :size="14" />
-                                    <span>{{ service.duration }}</span>
+                        <ChevronLeft :size="24" />
+                    </button>
+                    <button 
+                        @click="scrollService('right')" 
+                        class="absolute -right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/slider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
+                        :disabled="serviceIndex >= serviceTotalItems - 1"
+                    >
+                        <ChevronRight :size="24" />
+                    </button>
+
+                    <div 
+                        ref="serviceScrollRef"
+                        class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth pb-8"
+                    >
+                        <div 
+                            v-for="service in props.services"
+                            :key="service.id" 
+                            class="min-w-[320px] md:min-w-[400px] bg-white rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
+                        >
+                            <div class="h-64 relative overflow-hidden">
+                                <img 
+                                    :src="service.image_url || 'https://picsum.photos/800/600?random=' + service.id" 
+                                    :alt="service.name" 
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                />
+                                <div class="absolute top-4 right-4 bg-brand-900 text-white px-4 py-2 rounded-full font-bold shadow-lg">
+                                    ৳{{ service.price }}
                                 </div>
                             </div>
-                            <h3 class="text-2xl font-serif text-slate-900 mb-4 line-clamp-1">{{ service.name }}</h3>
-                            <p class="text-slate-500 mb-8 line-clamp-2 leading-relaxed flex-grow">{{ service.description }}</p>
-                            
-                            <Link 
-                                :href="`/services/${service.id}`" 
-                                class="inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-8 py-3.5 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/20"
-                            >
-                                <span>View Details</span>
-                                <ArrowRight :size="14" />
+                            <div class="p-10 flex-grow flex flex-col items-center text-center">
+                                <div class="flex items-center space-x-2 text-brand-500 font-bold text-xs uppercase tracking-widest mb-4">
+                                    <span>{{ service.category_item?.name || service.category }}</span>
+                                    <span>•</span>
+                                    <div class="flex items-center space-x-1">
+                                        <Clock :size="14" />
+                                        <span>{{ service.duration }}</span>
+                                    </div>
+                                </div>
+                                <h3 class="text-2xl font-serif text-slate-900 mb-4 line-clamp-1">{{ service.name }}</h3>
+                                <p class="text-slate-500 mb-8 line-clamp-2 leading-relaxed flex-grow">{{ service.description }}</p>
+                                
+                                <Link 
+                                    :href="`/services/${service.id}`" 
+                                    class="inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-8 py-3.5 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/20"
+                                >
+                                    <span>View Details</span>
+                                    <ArrowRight :size="14" />
+                                </Link>
+                            </div>
+                        </div>
+                        
+                        <div class="min-w-[320px] md:min-w-[400px] flex flex-col items-center justify-center p-12 bg-white rounded-[2rem] border-2 border-dashed border-brand-200 group hover:border-brand-900 transition-colors">
+                            <Link href="/services" class="text-center group flex flex-col items-center">
+                                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm transition-transform group-hover:scale-110 group-hover:bg-brand-900 group-hover:text-white">
+                                    <Scissors :size="28" />
+                                </div>
+                                <h3 class="text-2xl font-serif text-slate-900 mb-2">Service Menu</h3>
+                                <p class="text-slate-500 mb-6 text-sm">View all artisanal rituals</p>
+                                <div class="flex items-center space-x-2 text-brand-900 font-bold uppercase text-xs tracking-[0.2em]">
+                                    <span>Full Menu</span>
+                                    <ArrowRight :size="16" />
+                                </div>
                             </Link>
                         </div>
-                    </div>
-                    
-                    <div class="min-w-[320px] md:min-w-[400px] flex flex-col items-center justify-center p-12 bg-white rounded-[2rem] border-2 border-dashed border-brand-200 group hover:border-brand-900 transition-colors">
-                        <Link href="/services" class="text-center group flex flex-col items-center">
-                            <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm transition-transform group-hover:scale-110 group-hover:bg-brand-900 group-hover:text-white">
-                                <Scissors :size="28" />
-                            </div>
-                            <h3 class="text-2xl font-serif text-slate-900 mb-2">Service Menu</h3>
-                            <p class="text-slate-500 mb-6 text-sm">View all artisanal rituals</p>
-                            <div class="flex items-center space-x-2 text-brand-900 font-bold uppercase text-xs tracking-[0.2em]">
-                                <span>Full Menu</span>
-                                <ArrowRight :size="16" />
-                            </div>
-                        </Link>
                     </div>
                 </div>
 
@@ -249,67 +257,74 @@ const buyNow = (product: any) => {
             </section>
 
             <!-- PRODUCT CAROUSEL SECTION -->
-            <section class="py-24 bg-white overflow-hidden">
-                <div class="max-w-7xl mx-auto px-4 mb-12 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Elite Apothecary</h2>
-                        <p class="text-4xl md:text-5xl font-serif text-slate-900">Featured Essentials</p>
-                    </div>
-                    <div class="flex space-x-4">
-                        <button @click="scrollProduct('left')" class="p-4 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-brand-900 transition-all" :disabled="productIndex === 0" :class="{ 'opacity-40 cursor-not-allowed': productIndex === 0 }">
-                            <ChevronLeft :size="24" />
-                        </button>
-                        <button @click="scrollProduct('right')" class="p-4 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-brand-900 transition-all" :disabled="productIndex >= productTotalItems - 1" :class="{ 'opacity-40 cursor-not-allowed': productIndex >= productTotalItems - 1 }">
-                            <ChevronRight :size="24" />
-                        </button>
-                    </div>
+            <section class="py-24 bg-white">
+                <div class="max-w-7xl mx-auto px-4 mb-12">
+                    <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Elite Apothecary</h2>
+                    <p class="text-4xl md:text-5xl font-serif text-slate-900">Featured Essentials</p>
                 </div>
 
-                <div 
-                    ref="productScrollRef"
-                    class="flex overflow-x-auto gap-8 px-[max(1rem,calc((100vw-80rem)/2))] no-scrollbar scroll-smooth pb-4"
-                >
-                    <div 
-                        v-for="product in props.products"
-                        :key="product.id" 
-                        class="min-w-[300px] md:min-w-[350px] group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
+                <div class="max-w-7xl mx-auto px-4 relative group/pslider">
+                    <!-- Navigation Overlays -->
+                    <button 
+                        @click="scrollProduct('left')" 
+                        class="absolute -left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/pslider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
+                        :disabled="productIndex === 0"
                     >
-                        <div class="h-64 overflow-hidden relative">
-                            <img :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="product.name" />
-                            <div class="absolute top-6 left-6 bg-white/90 backdrop-blur p-2.5 rounded-xl text-brand-900 shadow-md">
-                                <Tag :size="18" />
+                        <ChevronLeft :size="24" />
+                    </button>
+                    <button 
+                        @click="scrollProduct('right')" 
+                        class="absolute -right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/pslider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
+                        :disabled="productIndex >= productTotalItems - 1"
+                    >
+                        <ChevronRight :size="24" />
+                    </button>
+
+                    <div 
+                        ref="productScrollRef"
+                        class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth pb-8"
+                    >
+                        <div 
+                            v-for="product in props.products"
+                            :key="product.id" 
+                            class="min-w-[300px] md:min-w-[350px] group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
+                        >
+                            <div class="h-64 overflow-hidden relative">
+                                <img :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="product.name" />
+                                <div class="absolute top-6 left-6 bg-white/90 backdrop-blur p-2.5 rounded-xl text-brand-900 shadow-md">
+                                    <Tag :size="18" />
+                                </div>
+                            </div>
+                            <div class="p-8 flex-grow flex flex-col items-center text-center">
+                                <p class="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-2">{{ product.category_item?.name || product.category }}</p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{{ product.brand }}</p>
+                                <h3 class="text-xl font-serif text-slate-900 mb-4 truncate w-full">{{ product.name }}</h3>
+                                <p class="text-2xl font-bold text-brand-900 mb-6">৳{{ product.price }}</p>
+                                
+                                <div class="flex items-center gap-3 w-full">
+                                    <button 
+                                        @click="addToCart(product)"
+                                        class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-50 text-brand-900 px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-900 hover:text-white shadow-sm"
+                                    >
+                                        <ShoppingCart :size="14" />
+                                        <span>Add</span>
+                                    </button>
+                                    <button 
+                                        @click="buyNow(product)"
+                                        class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 shadow-md"
+                                    >
+                                        <Zap :size="14" />
+                                        <span>Buy</span>
+                                    </button>
+                                    <Link 
+                                        :href="`/products/${product.id}`" 
+                                        class="p-3 bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200 transition-all"
+                                    >
+                                        <ArrowRight :size="14" />
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-                        <div class="p-8 flex-grow flex flex-col items-center text-center">
-                            <p class="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-2">{{ product.category_item?.name || product.category }}</p>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{{ product.brand }}</p>
-                            <h3 class="text-xl font-serif text-slate-900 mb-4 truncate w-full">{{ product.name }}</h3>
-                            <p class="text-2xl font-bold text-brand-900 mb-6">৳{{ product.price }}</p>
-                            
-                            <div class="flex items-center gap-3 w-full">
-                                <button 
-                                    @click="addToCart(product)"
-                                    class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-50 text-brand-900 px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-900 hover:text-white shadow-sm"
-                                >
-                                    <ShoppingCart :size="14" />
-                                    <span>Add</span>
-                                </button>
-                                <button 
-                                    @click="buyNow(product)"
-                                    class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 shadow-md"
-                                >
-                                    <Zap :size="14" />
-                                    <span>Buy</span>
-                                </button>
-                                <Link 
-                                    :href="`/products/${product.id}`" 
-                                    class="p-3 bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200 transition-all"
-                                >
-                                    <ArrowRight :size="14" />
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
                     
                     <div class="min-w-[300px] md:min-w-[350px] flex flex-col items-center justify-center p-12 bg-brand-50 rounded-3xl border-2 border-dashed border-brand-200 group hover:border-brand-900 transition-colors">
                         <Link href="/products" class="text-center group flex flex-col items-center">
@@ -323,6 +338,7 @@ const buyNow = (product: any) => {
                                 <ArrowRight :size="16" />
                             </div>
                         </Link>
+                    </div>
                     </div>
                 </div>
 

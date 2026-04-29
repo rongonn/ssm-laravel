@@ -215,26 +215,31 @@ onMounted(() => {
             </div>
 
             <!-- Related Products Slider -->
-            <section v-if="props.relatedProducts.length > 0" class="py-24 bg-brand-50 overflow-hidden">
-                <div class="max-w-7xl mx-auto px-4 mb-12 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Curated Pairings</h2>
-                        <p class="text-4xl md:text-5xl font-serif text-slate-900">You May Also Love</p>
-                    </div>
-                    <div class="flex space-x-4">
-                        <button @click="scroll('left')" class="p-4 rounded-full border border-slate-200 hover:bg-white text-slate-400 hover:text-brand-900 transition-all">
-                            <ChevronLeft :size="24" />
-                        </button>
-                        <button @click="scroll('right')" class="p-4 rounded-full border border-slate-200 hover:bg-white text-slate-400 hover:text-brand-900 transition-all">
-                            <ChevronRight :size="24" />
-                        </button>
-                    </div>
+            <section v-if="props.relatedProducts.length > 0" class="py-24 bg-brand-50">
+                <div class="max-w-7xl mx-auto px-4 mb-12">
+                    <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Curated Pairings</h2>
+                    <p class="text-4xl md:text-5xl font-serif text-slate-900">You May Also Love</p>
                 </div>
 
-                <div 
-                    ref="scrollRef"
-                    class="flex overflow-x-auto gap-8 px-[max(1rem,calc((100vw-80rem)/2))] no-scrollbar scroll-smooth pb-12"
-                >
+                <div class="max-w-7xl mx-auto px-4 relative group/rslider">
+                    <!-- Navigation Overlays -->
+                    <button 
+                        @click="scroll('left')" 
+                        class="absolute -left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/rslider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden"
+                    >
+                        <ChevronLeft :size="24" />
+                    </button>
+                    <button 
+                        @click="scroll('right')" 
+                        class="absolute -right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/rslider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden"
+                    >
+                        <ChevronRight :size="24" />
+                    </button>
+
+                    <div 
+                        ref="scrollRef"
+                        class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth pb-12"
+                    >
                     <Link 
                         v-for="rel in props.relatedProducts"
                         :key="rel.id" 
@@ -258,6 +263,7 @@ onMounted(() => {
                             </div>
                         </div>
                     </Link>
+                    </div>
                 </div>
             </section>
         </div>
