@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { Link, Head, usePage } from '@inertiajs/vue3';
-import { Scissors, ArrowRight, ShoppingBag, Image as ImageIcon, ChevronLeft, ChevronRight, Tag, Clock, X, Maximize2 } from 'lucide-vue-next';
+import { Scissors, ArrowRight, ShoppingBag, Image as ImageIcon, ChevronLeft, ChevronRight, Tag, Clock, X, Maximize2, ShoppingCart, Zap } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import TestimonialSlider from '@/Components/TestimonialSlider.vue';
+import { cart } from '@/CartStore';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     testimonials: any[];
@@ -120,6 +122,15 @@ onBeforeUnmount(() => {
     serviceScrollRef.value?.removeEventListener('scroll', onServiceScroll);
     productScrollRef.value?.removeEventListener('scroll', onProductScroll);
 });
+
+const addToCart = (product: any) => {
+    cart.addItem(product);
+};
+
+const buyNow = (product: any) => {
+    cart.addItem(product);
+    router.visit('/checkout');
+};
 </script>
 
 <template>
@@ -264,7 +275,7 @@ onBeforeUnmount(() => {
                         class="min-w-[300px] md:min-w-[350px] group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
                     >
                         <div class="h-64 overflow-hidden relative">
-                            <img :src="product.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="product.name" />
+                            <img :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="product.name" />
                             <div class="absolute top-6 left-6 bg-white/90 backdrop-blur p-2.5 rounded-xl text-brand-900 shadow-md">
                                 <Tag :size="18" />
                             </div>
@@ -275,13 +286,28 @@ onBeforeUnmount(() => {
                             <h3 class="text-xl font-serif text-slate-900 mb-4 truncate w-full">{{ product.name }}</h3>
                             <p class="text-2xl font-bold text-brand-900 mb-6">৳{{ product.price }}</p>
                             
-                            <Link 
-                                :href="`/products/${product.id}`" 
-                                class="inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-8 py-3.5 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/20"
-                            >
-                                <span>Explore Item</span>
-                                <ArrowRight :size="14" />
-                            </Link>
+                            <div class="flex items-center gap-3 w-full">
+                                <button 
+                                    @click="addToCart(product)"
+                                    class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-50 text-brand-900 px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-900 hover:text-white shadow-sm"
+                                >
+                                    <ShoppingCart :size="14" />
+                                    <span>Add</span>
+                                </button>
+                                <button 
+                                    @click="buyNow(product)"
+                                    class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 shadow-md"
+                                >
+                                    <Zap :size="14" />
+                                    <span>Buy</span>
+                                </button>
+                                <Link 
+                                    :href="`/products/${product.id}`" 
+                                    class="p-3 bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200 transition-all"
+                                >
+                                    <ArrowRight :size="14" />
+                                </Link>
+                            </div>
                         </div>
                     </div>
                     

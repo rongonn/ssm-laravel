@@ -13,6 +13,28 @@ class Product extends Model
         'name', 'description', 'price', 'brand', 'image_url', 'is_active', 'category_id', 'category'
     ];
 
+    protected $casts = [
+        'is_active'  => 'boolean',
+        'image_url'  => 'array',
+    ];
+
+    /**
+     * Get the first (main) image URL.
+     */
+    public function getMainImageAttribute(): ?string
+    {
+        $images = $this->image_url;
+        return is_array($images) && count($images) > 0 ? $images[0] : null;
+    }
+
+    /**
+     * Get all image URLs as an array.
+     */
+    public function getAllImagesAttribute(): array
+    {
+        return is_array($this->image_url) ? $this->image_url : [];
+    }
+
     public function categoryItem()
     {
         return $this->belongsTo(Category::class, 'category_id');
@@ -22,8 +44,4 @@ class Product extends Model
     {
         return $this->hasMany(Order::class);
     }
-
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
 }

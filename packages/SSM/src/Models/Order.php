@@ -8,12 +8,14 @@ class Order extends Model
 {
     protected $fillable = [
         'order_no',
-        'product_id', 
         'customer_name', 
         'customer_phone', 
         'customer_address', 
-        'status', 
+        'subtotal',
+        'delivery_charge',
+        'discount',
         'total_price',
+        'status', 
         'source'
     ];
 
@@ -44,8 +46,8 @@ class Order extends Model
         'Cancelled'
     ];
 
-    public function product()
+    public function items()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(OrderItem::class);
     }
 }

@@ -157,7 +157,7 @@ class DashboardController extends Controller
 
     public function ordersIndex(Request $request)
     {
-        $query = Order::with('product');
+        $query = Order::with('items.product');
         
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -198,51 +198,127 @@ class DashboardController extends Controller
     public function manualOrderStore(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric',
+            'subtotal' => 'required|numeric',
+            'delivery_charge' => 'required|numeric',
+            'discount' => 'required|numeric',
             'total_price' => 'required|numeric'
         ]);
 
-        Order::create([
-            'product_id' => $request->product_id,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_address' => $request->customer_address,
-            'total_price' => $request->total_price,
-            'status' => 'New Order',
-            'source' => 'Manual'
-        ]);
+        \DB::transaction(function () use ($request) {
+            $order = Order::create([
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_address' => $request->customer_address,
+                'subtotal' => $request->subtotal,
+                'delivery_charge' => $request->delivery_charge,
+                'discount' => $request->discount,
+                'total_price' => $request->total_price,
+                'status' => 'New Order',
+                'source' => 'Manual'
+            ]);
+
+            foreach ($request->items as $item) {
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price']
+                ]);
+            }
+        });
 
         return back()->with('success', 'Manual order created successfully');
     }
 
-    // CRUD methods
+    public function updateManualOrder(Request $request, $id)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'customer_address' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric',
+            'subtotal' => 'required|numeric',
+            'delivery_charge' => 'required|numeric',
+            'discount' => 'required|numeric',
+            'total_price' => 'required|numeric'
+        ]);
+
+        \DB::transaction(function () use ($request, $id) {
+            $order = Order::findOrFail($id);
+            $order->update([
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_address' => $request->customer_address,
+                'subtotal' => $request->subtotal,
+                'delivery_charge' => $request->delivery_charge,
+                'discount' => $request->discount,
+                'total_price' => $request->total_price,
+            ]);
+
+            $order->items()->delete();
+
+            foreach ($request->items as $item) {
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price']
+                ]);
+            }
+        });
+
+        return back()->with('success', 'Order updated successfully');
+    }
     public function store(Request $request, $table)
     {
         $modelClass = $this->modelMap[$table] ?? null;
         if (!$modelClass) return back()->withErrors('Invalid table');
 
-        $data = $request->except('image');
-        
-        $file = $request->file('image') ?? $request->image;
-        
-        if ($file instanceof \Illuminate\Http\UploadedFile) {
-            $path = $file->store('assets', 'public');
-            $url = Storage::url($path);
-            
-            if ($table === 'testimonials') {
-                $data['avatar_url'] = $url;
-            } else {
-                $data['image_url'] = $url;
+        $data = $request->except('image', 'images');
+
+        if ($table === 'products') {
+            // Multi-image support for products
+            $images = [];
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    if ($file && $file->isValid()) {
+                        $path = $file->store('assets', 'public');
+                        $images[] = Storage::url($path);
+                        if (count($images) >= 5) break;
+                    }
+                }
+            } elseif ($request->hasFile('image')) {
+                $file = $request->file('image');
+                if ($file && $file->isValid()) {
+                    $path = $file->store('assets', 'public');
+                    $images[] = Storage::url($path);
+                }
             }
+            $data['image_url'] = $images;
         } else {
-            // Fallback for missing image
-            if ($table === 'testimonials' && !isset($data['avatar_url'])) {
-                $data['avatar_url'] = null;
-            } elseif (!in_array($table, ['categories', 'contacts']) && !isset($data['image_url'])) {
-                $data['image_url'] = null;
+            $file = $request->file('image') ?? $request->image;
+            if ($file instanceof \Illuminate\Http\UploadedFile) {
+                $path = $file->store('assets', 'public');
+                $url = Storage::url($path);
+                if ($table === 'testimonials') {
+                    $data['avatar_url'] = $url;
+                } else {
+                    $data['image_url'] = $url;
+                }
+            } else {
+                if ($table === 'testimonials' && !isset($data['avatar_url'])) {
+                    $data['avatar_url'] = null;
+                } elseif (!in_array($table, ['categories', 'contacts']) && !isset($data['image_url'])) {
+                    $data['image_url'] = null;
+                }
             }
         }
 
@@ -260,17 +336,45 @@ class DashboardController extends Controller
         if (!$modelClass) return back()->withErrors('Invalid table');
         
         $item = $modelClass::findOrFail($id);
-        $data = $request->except('image');
-   
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $path = $file->store('assets', 'public');
-            $url = Storage::url($path);
-            
-            if ($table === 'testimonials') {
-                $data['avatar_url'] = $url;
-            } else {
-                $data['image_url'] = $url;
+        $data = $request->except('image', 'images');
+
+        if ($table === 'products') {
+            // If new images uploaded, append to existing list
+            if ($request->hasFile('images')) {
+                $existingImages = is_array($item->image_url) ? $item->image_url : [];
+                foreach ($request->file('images') as $file) {
+                    if (count($existingImages) >= 5) break;
+                    if ($file && $file->isValid()) {
+                        $path = $file->store('assets', 'public');
+                        $existingImages[] = Storage::url($path);
+                    }
+                }
+                $data['image_url'] = $existingImages;
+            } elseif ($request->hasFile('image')) {
+                $file = $request->file('image');
+                if ($file && $file->isValid()) {
+                    $path = $file->store('assets', 'public');
+                    $url = Storage::url($path);
+                    $existingImages = is_array($item->image_url) ? $item->image_url : [];
+                    if (empty($existingImages)) {
+                        $existingImages[] = $url;
+                    } else {
+                        $existingImages[0] = $url;
+                    }
+                    $data['image_url'] = $existingImages;
+                }
+            }
+            // else don't touch images
+        } else {
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $path = $file->store('assets', 'public');
+                $url = Storage::url($path);
+                if ($table === 'testimonials') {
+                    $data['avatar_url'] = $url;
+                } else {
+                    $data['image_url'] = $url;
+                }
             }
         }
 
@@ -299,5 +403,43 @@ class DashboardController extends Controller
         $product = Product::findOrFail($id);
         $product->update(['is_active' => !$product->is_active]);
         return back()->with('success', 'Status updated');
+    }
+
+    public function addProductImage(Request $request, $id)
+    {
+        $request->validate(['image' => 'required|image|max:5120']);
+        $product = Product::findOrFail($id);
+        $images = is_array($product->image_url) ? $product->image_url : [];
+
+        if (count($images) >= 5) {
+            return back()->withErrors('Maximum 5 images allowed.');
+        }
+
+        $path = $request->file('image')->store('assets', 'public');
+        $images[] = Storage::url($path);
+        $product->update(['image_url' => $images]);
+
+        return back()->with('success', 'Image added.');
+    }
+
+    public function removeProductImage(Request $request, $id)
+    {
+        $url = $request->input('url') ?? $request->url;
+
+        if (!$url) {
+            return response()->json(['success' => false, 'message' => 'URL required'], 422);
+        }
+
+        $product = Product::findOrFail($id);
+        $images  = is_array($product->image_url) ? $product->image_url : [];
+        $images  = array_values(array_filter($images, fn($img) => $img !== $url));
+        $product->update(['image_url' => $images]);
+
+        // If AJAX request, return JSON
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Image removed.');
     }
 }

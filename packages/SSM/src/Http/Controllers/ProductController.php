@@ -40,24 +40,61 @@ class ProductController extends Controller
         ]);
     }
 
-    public function purchase(Request $request, $id)
+    public function checkout()
     {
-        $product = Product::findOrFail($id);
-        
+        return Inertia::render('SSM/Checkout/Index');
+    }
+
+    public function purchase(Request $request)
+    {
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        Order::create([
-            'product_id' => $id,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_address' => $request->customer_address,
-            'total_price' => $product->price,
-            'status' => 'New Order'
-        ]);
+        $subtotal = 0;
+        $orderItems = [];
+
+        foreach ($request->items as $item) {
+            $product = Product::findOrFail($item['id']);
+            $price = (float) $product->price;
+            $quantity = (int) $item['quantity'];
+            $subtotal += $price * $quantity;
+            
+            $orderItems[] = [
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'price' => $price,
+            ];
+        }
+
+        // For now, delivery charge and discount are 0 from customer side
+        // Admin will update them later as per requirement
+        $delivery_charge = 0;
+        $discount = 0;
+        $total_price = $subtotal + $delivery_charge - $discount;
+
+        \DB::transaction(function () use ($request, $orderItems, $subtotal, $total_price) {
+            $order = Order::create([
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_address' => $request->customer_address,
+                'subtotal' => $subtotal,
+                'delivery_charge' => 0,
+                'discount' => 0,
+                'total_price' => $total_price,
+                'status' => 'New Order',
+                'source' => 'Website'
+            ]);
+
+            foreach ($orderItems as $itemData) {
+                $order->items()->create($itemData);
+            }
+        });
 
         return back()->with('success', 'Order placed successfully! We will contact you soon.');
     }

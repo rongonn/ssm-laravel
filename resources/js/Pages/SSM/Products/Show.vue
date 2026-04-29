@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, ShoppingBag, ArrowLeft, Tag, ShieldCheck, Truck, RefreshCw, MessageCircle, X, CheckCircle2 } from 'lucide-vue-next';
+import { ShoppingCart, ChevronLeft, ChevronRight, ShoppingBag, ArrowLeft, Tag, ShieldCheck, Truck, RefreshCw, MessageCircle, X, CheckCircle2 } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { cart } from '@/CartStore';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     id: string;
@@ -18,14 +20,36 @@ const APP_NAME = computed(() => (settings.value as any).application_name || "Bio
 const mousePos = ref({ x: 0, y: 0 });
 const isHovering = ref(false);
 const scrollRef = ref<HTMLElement | null>(null);
-const showCheckoutModal = ref(false);
-const orderSuccess = ref(false);
+const activeImageIndex = ref(0);
+const showAddedNotification = ref(false);
 
-const form = useForm({
-    customer_name: '',
-    customer_phone: '',
-    customer_address: '',
+const allImages = computed(() => {
+    const raw = props.product?.image_url;
+    if (Array.isArray(raw) && raw.length > 0) return raw;
+    if (typeof raw === 'string' && raw) return [raw];
+    return [];
 });
+
+const activeImage = computed(() => allImages.value[activeImageIndex.value] ?? null);
+
+const addToCart = () => {
+    cart.addItem(props.product);
+    showAddedNotification.value = true;
+    setTimeout(() => {
+        showAddedNotification.value = false;
+    }, 3000);
+};
+
+const buyNow = () => {
+    cart.addItem(props.product);
+    router.visit('/checkout');
+};
+
+const openWhatsApp = () => {
+    if (!props.product) return;
+    const message = encodeURIComponent(`Hello ${APP_NAME.value}! I'm interested in the product: ${props.product.name} (Brand: ${props.product.brand}, Price: ৳${props.product.price}). Is it available?`);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('-', '')}?text=${message}`, '_blank');
+};
 
 const WHATSAPP_NUMBER = "01911-879571";
 
@@ -43,25 +67,6 @@ const scroll = (direction: 'left' | 'right') => {
         const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth;
         scrollRef.value.scrollTo({ left: scrollTo, behavior: 'smooth' });
     }
-};
-
-const openWhatsApp = () => {
-    if (!props.product) return;
-    const message = encodeURIComponent(`Hello ${APP_NAME.value}! I'm interested in the product: ${props.product.name} (Brand: ${props.product.brand}, Price: ৳${props.product.price}). Is it available?`);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('-', '')}?text=${message}`, '_blank');
-};
-
-const submitOrder = () => {
-    form.post(route('products.purchase', props.id), {
-        onSuccess: () => {
-            orderSuccess.value = true;
-            form.reset();
-            setTimeout(() => {
-                showCheckoutModal.value = false;
-                orderSuccess.value = false;
-            }, 3000);
-        },
-    });
 };
 
 onMounted(() => {
@@ -93,21 +98,45 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto px-4 pb-12">
                 <!-- Top Section -->
                 <div class="grid lg:grid-cols-2 gap-16 items-start mb-16">
-                    <!-- Image Section with Zoom -->
-                    <div 
-                        class="relative aspect-square rounded-[3rem] overflow-hidden bg-brand-50 cursor-crosshair border border-brand-100 group"
-                        @mousemove="handleMouseMove"
-                        @mouseenter="isHovering = true"
-                        @mouseleave="isHovering = false"
-                    >
-                        <img 
-                            :src="props.product.image_url" 
-                            :alt="props.product.name" 
-                            :class="['w-full h-full object-cover transition-transform duration-200', isHovering ? 'scale-[2]' : 'scale-100']"
-                            :style="isHovering ? { transformOrigin: `${mousePos.x}% ${mousePos.y}%` } : {}"
-                        />
-                        <div class="absolute bottom-6 right-6 bg-white/90 backdrop-blur px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm pointer-events-none group-hover:opacity-0 transition-opacity">
-                            Hover to Zoom
+                    <!-- Image Section with Zoom + Thumbnail Gallery -->
+                    <div class="flex flex-col gap-4">
+                        <!-- Main Image -->
+                        <div 
+                            class="relative aspect-square rounded-[3rem] overflow-hidden bg-brand-50 cursor-crosshair border border-brand-100 group"
+                            @mousemove="handleMouseMove"
+                            @mouseenter="isHovering = true"
+                            @mouseleave="isHovering = false"
+                        >
+                            <img 
+                                v-if="activeImage"
+                                :src="activeImage" 
+                                :alt="props.product.name" 
+                                :class="['w-full h-full object-cover transition-transform duration-200', isHovering ? 'scale-[2]' : 'scale-100']"
+                                :style="isHovering ? { transformOrigin: `${mousePos.x}% ${mousePos.y}%` } : {}"
+                            />
+                            <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
+                                <span class="text-lg">No Image</span>
+                            </div>
+                            <div class="absolute bottom-6 right-6 bg-white/90 backdrop-blur px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm pointer-events-none group-hover:opacity-0 transition-opacity">
+                                Hover to Zoom
+                            </div>
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div v-if="allImages.length > 1" class="flex gap-3 flex-wrap">
+                            <button
+                                v-for="(img, idx) in allImages"
+                                :key="idx"
+                                @click="activeImageIndex = idx"
+                                :class="[
+                                    'w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all duration-200 focus:outline-none',
+                                    activeImageIndex === idx
+                                        ? 'border-brand-900 shadow-md scale-105'
+                                        : 'border-transparent opacity-60 hover:opacity-100 hover:border-brand-300'
+                                ]"
+                            >
+                                <img :src="img" :alt="`${props.product.name} image ${idx + 1}`" class="w-full h-full object-cover" />
+                            </button>
                         </div>
                     </div>
 
@@ -127,13 +156,22 @@ onMounted(() => {
 
                         <!-- CTA Section -->
                         <div class="space-y-4 pt-4">
-                            <button 
-                                @click="showCheckoutModal = true"
-                                class="flex items-center justify-center space-x-4 w-full bg-brand-900 text-white py-6 rounded-[2rem] text-xl font-bold shadow-2xl shadow-brand-900/20 hover:scale-[1.02] active:scale-95 transition-all"
-                            >
-                                <ShoppingBag :size="28" />
-                                <span>Buy Now</span>
-                            </button>
+                            <div class="flex gap-4">
+                                <button 
+                                    @click="addToCart"
+                                    class="flex-1 flex items-center justify-center space-x-3 bg-brand-50 text-brand-900 py-6 rounded-[2rem] text-xl font-bold border-2 border-brand-200 hover:bg-brand-100 active:scale-95 transition-all"
+                                >
+                                    <ShoppingCart :size="24" />
+                                    <span>Add to Cart</span>
+                                </button>
+                                <button 
+                                    @click="buyNow"
+                                    class="flex-[1.5] flex items-center justify-center space-x-4 bg-brand-900 text-white py-6 rounded-[2rem] text-xl font-bold shadow-2xl shadow-brand-900/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                >
+                                    <ShoppingBag :size="28" />
+                                    <span>Buy Now</span>
+                                </button>
+                            </div>
                             <button 
                                 @click="openWhatsApp"
                                 class="flex items-center justify-center space-x-4 w-full bg-[#25D366]/10 text-[#25D366] py-5 rounded-[2rem] text-lg font-bold hover:bg-[#25D366]/20 transition-all"
@@ -204,7 +242,7 @@ onMounted(() => {
                         class="min-w-[300px] md:min-w-[350px] group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
                     >
                         <div class="h-64 overflow-hidden relative">
-                            <img :src="rel.image_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="rel.name" />
+                            <img :src="(Array.isArray(rel.image_url) ? rel.image_url[0] : rel.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="rel.name" />
                             <div class="absolute top-6 left-6 bg-white/90 backdrop-blur p-2.5 rounded-xl text-brand-900 shadow-md">
                                 <Tag :size="18" />
                             </div>
@@ -224,84 +262,28 @@ onMounted(() => {
             </section>
         </div>
 
-        <!-- Checkout Modal -->
-        <div v-if="showCheckoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showCheckoutModal = false"></div>
-            
-            <div class="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-                <div v-if="!orderSuccess" class="p-8 md:p-12">
-                    <div class="flex items-center justify-between mb-8">
-                        <div>
-                            <h2 class="text-3xl font-serif text-slate-900">Confirm Order</h2>
-                            <p class="text-slate-500">Complete your details to place the order.</p>
-                        </div>
-                        <button @click="showCheckoutModal = false" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                            <X :size="24" class="text-slate-400" />
-                        </button>
-                    </div>
-
-                    <!-- Summary -->
-                    <div class="bg-brand-50 p-6 rounded-3xl flex items-center space-x-4 mb-8">
-                        <img :src="props.product.image_url" class="w-16 h-16 rounded-xl object-cover shadow-sm" />
-                        <div>
-                            <p class="font-bold text-slate-900">{{ props.product.name }}</p>
-                            <p class="text-brand-900 font-bold">৳{{ props.product.price }}</p>
-                        </div>
-                    </div>
-
-                    <form @submit.prevent="submitOrder" class="space-y-6">
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Full Name</label>
-                            <input 
-                                v-model="form.customer_name"
-                                type="text" 
-                                required
-                                class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
-                                placeholder="Enter your name"
-                            />
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Phone Number</label>
-                            <input 
-                                v-model="form.customer_phone"
-                                type="tel" 
-                                required
-                                class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900"
-                                placeholder="01XXX-XXXXXX"
-                            />
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Delivery Address</label>
-                            <textarea 
-                                v-model="form.customer_address"
-                                required
-                                rows="3"
-                                class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-900/20 text-slate-900 resize-none"
-                                placeholder="Apt, Street, Area, City"
-                            ></textarea>
-                        </div>
-
-                        <button 
-                            type="submit" 
-                            :disabled="form.processing"
-                            class="w-full bg-brand-900 text-white py-5 rounded-2xl font-bold flex items-center justify-center space-x-3 hover:translate-y-[-2px] disabled:opacity-50 transition-all shadow-xl shadow-brand-900/20 mt-4"
-                        >
-                            <span v-if="form.processing">Processing...</span>
-                            <span v-else>Confirm Order ৳{{ props.product.price }}</span>
-                        </button>
-                    </form>
+        <!-- Added to Cart Notification -->
+        <Transition
+            enter-active-class="transform ease-out duration-300 transition"
+            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showAddedNotification" class="fixed bottom-10 right-10 z-[100] bg-white border border-brand-200 rounded-2xl shadow-2xl p-4 flex items-center space-x-4 max-w-sm animate-in slide-in-from-right-4">
+                <div class="bg-brand-50 text-brand-900 p-2 rounded-xl">
+                    <CheckCircle2 :size="20" />
                 </div>
-
-                <!-- Success State -->
-                <div v-else class="p-16 flex flex-col items-center text-center">
-                    <div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-8">
-                        <CheckCircle2 :size="48" />
-                    </div>
-                    <h2 class="text-4xl font-serif text-slate-900 mb-4">Order Received!</h2>
-                    <p class="text-slate-500 text-lg">Thank you, {{ form.customer_name }}. We will call you at {{ form.customer_phone }} shortly to confirm your delivery.</p>
+                <div>
+                    <p class="font-bold text-slate-900 text-sm">Added to Cart!</p>
+                    <p class="text-slate-500 text-xs truncate max-w-[200px]">{{ product.name }} added successfully.</p>
                 </div>
+                <Link href="/checkout" class="bg-brand-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-800 transition-colors">
+                    Checkout
+                </Link>
             </div>
-        </div>
+        </Transition>
     </PublicLayout>
 </template>
 

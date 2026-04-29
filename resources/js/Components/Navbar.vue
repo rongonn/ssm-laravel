@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Menu, X, User } from 'lucide-vue-next';
+import { Menu, X, User, ShoppingCart } from 'lucide-vue-next';
+import { cart } from '@/CartStore';
 
 const isOpen = ref(false);
 
@@ -61,11 +62,21 @@ const isActive = (path: string) => {
                         {{ link.name }}
                     </Link>
                     
-
-
+                    <Link href="/checkout" class="relative p-2 text-slate-600 hover:text-brand-900 transition-colors group">
+                        <ShoppingCart :size="22" />
+                        <span v-if="cart.totalItems > 0" class="absolute -top-1 -right-1 bg-brand-900 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white group-hover:scale-110 transition-transform">
+                            {{ cart.totalItems }}
+                        </span>
+                    </Link>
                 </div>
 
-                <div class="md:hidden flex items-center">
+                <div class="md:hidden flex items-center space-x-4">
+                    <Link href="/checkout" class="relative p-2 text-slate-600 hover:text-brand-900 transition-colors">
+                        <ShoppingCart :size="22" />
+                        <span v-if="cart.totalItems > 0" class="absolute -top-1 -right-1 bg-brand-900 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                            {{ cart.totalItems }}
+                        </span>
+                    </Link>
                     <button
                         @click="isOpen = !isOpen"
                         class="text-slate-600 hover:text-brand-900 p-2"

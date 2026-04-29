@@ -42,6 +42,10 @@ class HandleInertiaRequests extends Middleware
             'settings' => function () {
                 return function_exists('settings') ? settings() : null;
             },
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
         ];
     }
 }

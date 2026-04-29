@@ -33,13 +33,17 @@ Route::middleware(['web'])->group(function () {
         // CRUD routes
         Route::get('/orders', [AdminDashboardController::class, 'ordersIndex'])->name('admin.orders');
         Route::post('/orders/manual', [AdminDashboardController::class, 'manualOrderStore'])->name('admin.orders.manual');
+        Route::post('/orders/{id}/manual', [AdminDashboardController::class, 'updateManualOrder'])->name('admin.orders.manual.update');
         Route::post('/orders/{id}/status', [AdminDashboardController::class, 'updateOrderStatus'])->name('admin.orders.status');
         Route::post('/store/{table}', [AdminDashboardController::class, 'store'])->name('admin.store');
         Route::post('/update/{table}/{id}', [AdminDashboardController::class, 'update'])->name('admin.update');
         Route::delete('/delete/{table}/{id}', [AdminDashboardController::class, 'destroy'])->name('admin.delete');
         Route::post('/product/{id}/toggle', [AdminDashboardController::class, 'toggleProductStatus'])->name('admin.products.toggle');
+        Route::post('/product/{id}/images/add', [AdminDashboardController::class, 'addProductImage'])->name('admin.products.image.add');
+        Route::post('/product/{id}/images/remove', [AdminDashboardController::class, 'removeProductImage'])->name('admin.products.image.remove');
     });
 
     // Front-end Product Purchase
-    Route::post('/products/{id}/purchase', [\SSM\Http\Controllers\ProductController::class, 'purchase'])->name('products.purchase');
+    Route::get('/checkout', [SSM\Http\Controllers\ProductController::class, 'checkout'])->name('products.checkout');
+    Route::post('/purchase', [SSM\Http\Controllers\ProductController::class, 'purchase'])->name('products.purchase');
 });

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { Search, ShoppingBag, ArrowRight, SlidersHorizontal, X, ChevronDown } from 'lucide-vue-next';
+import { Search, ShoppingBag, ArrowRight, SlidersHorizontal, X, ChevronDown, ShoppingCart, Zap } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { cart } from '@/CartStore';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     products: any[];
@@ -91,6 +93,15 @@ const filteredProducts = computed(() => {
 
     return list;
 });
+
+const addToCart = (product: any) => {
+    cart.addItem(product);
+};
+
+const buyNow = (product: any) => {
+    cart.addItem(product);
+    router.visit('/checkout');
+};
 </script>
 
 <template>
@@ -354,7 +365,7 @@ const filteredProducts = computed(() => {
                             >
                                 <div class="aspect-[4/3] overflow-hidden relative">
                                     <img
-                                        :src="product.image_url || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'"
+                                        :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'"
                                         :alt="product.name"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                     />
@@ -369,15 +380,33 @@ const filteredProducts = computed(() => {
                                 <div class="p-6 flex-grow flex flex-col">
                                     <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">{{ product.brand }}</p>
                                     <h3 class="text-lg font-serif text-slate-900 leading-tight mb-2 flex-grow">{{ product.name }}</h3>
-                                    <div class="flex items-center justify-between mt-4">
-                                        <p class="text-xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
-                                        <Link
-                                            :href="`/products/${product.id}`"
-                                            class="inline-flex items-center gap-2 bg-brand-900 text-white px-5 py-2.5 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-md shadow-brand-900/20"
-                                        >
-                                            <span>View</span>
-                                            <ArrowRight :size="12" />
-                                        </Link>
+                                    <div class="flex items-center gap-2 mt-4">
+                                        <div class="flex-grow">
+                                            <p class="text-xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button 
+                                                @click="addToCart(product)"
+                                                class="p-2.5 bg-brand-50 text-brand-900 rounded-xl hover:bg-brand-900 hover:text-white transition-all shadow-sm"
+                                                title="Add to Cart"
+                                            >
+                                                <ShoppingCart :size="18" />
+                                            </button>
+                                            <button 
+                                                @click="buyNow(product)"
+                                                class="p-2.5 bg-brand-900 text-white rounded-xl hover:bg-brand-800 hover:scale-105 transition-all shadow-md"
+                                                title="Order Now"
+                                            >
+                                                <Zap :size="18" />
+                                            </button>
+                                            <Link
+                                                :href="`/products/${product.id}`"
+                                                class="p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-all"
+                                                title="View Details"
+                                            >
+                                                <ArrowRight :size="18" />
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
