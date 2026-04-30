@@ -45,6 +45,7 @@
                     <th class="min-w-70px">Total</th>
                     <th class="min-w-100px">Source</th>
                     <th class="min-w-100px">Status</th>
+                    <th class="min-w-100px">Order Date</th>
                     <th class="text-end min-w-150px">Actions</th>
                 </tr>
             </thead>
@@ -96,6 +97,11 @@
                         @endphp
                         <span class="badge badge-light-{{ $badgeColor }}">{{ $order->status }}</span>
                     </td>
+                    <td>
+                        <span >
+                            {{ $order->created_at->format('d-M-Y h:i A') }}
+                        </span>
+                    </td>
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-2">
                             <button class="btn btn-icon btn-light-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal_view_order_{{ $order->id }}">
@@ -117,12 +123,12 @@
                             <button class="btn btn-sm btn-light-primary" data-bs-toggle="modal" data-bs-target="#modal_status_{{ $order->id }}">
                                 Status
                             </button>
-                            <form action="{{ route('admin.delete', ['table' => 'orders', 'id' => $order->id]) }}" method="POST" onsubmit="return confirm('Delete this order?')">
+                            {{-- <form action="{{ route('admin.delete', ['table' => 'orders', 'id' => $order->id]) }}" method="POST" onsubmit="return confirm('Delete this order?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-icon btn-light-danger btn-sm">
                                     <i class="bi bi-trash fs-4"></i>
                                 </button>
-                            </form>
+                            </form> --}}
                         </div>
                     </td>
                 </tr>
