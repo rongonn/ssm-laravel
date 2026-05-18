@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { Search, ShoppingBag, ArrowRight, SlidersHorizontal, X, ChevronDown, ShoppingCart, Zap } from 'lucide-vue-next';
+import { Search, ShoppingBag, ArrowRight, SlidersHorizontal, X, ChevronDown, ShoppingCart, Zap, LayoutGrid, List } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { cart } from '@/CartStore';
 import { router } from '@inertiajs/vue3';
@@ -24,6 +24,7 @@ const priceMin = ref(0);
 const priceMax = ref(10000);
 const inStockOnly = ref(false);
 const mobileSidebarOpen = ref(false);
+const isGridView = ref(true);
 
 onMounted(() => {
     const params = new URLSearchParams(window.location.search);
@@ -180,19 +181,72 @@ const buyNow = (product: any) => {
 
                             <div class="p-6 space-y-7">
 
-                                <!-- Search -->
+                                <!-- Price Range (At the very top) -->
                                 <div>
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Search</label>
-                                    <div class="flex items-center bg-slate-50 rounded-xl px-4 border border-slate-100 focus-within:border-brand-300 transition-colors">
-                                        <Search class="text-slate-300" :size="16" />
+                                    <label class="text-sm font-bold text-slate-800 mb-3 block">Price</label>
+                                    <div class="flex items-center justify-between text-xs font-semibold text-brand-900 mb-4">
+                                        <span>৳{{ priceMin }}</span>
+                                        <span>৳{{ priceMax }}</span>
+                                    </div>
+                                    <div class="relative w-full h-4 flex items-center">
+                                        <!-- Track background -->
+                                        <div class="absolute left-0 right-0 h-1.5 bg-slate-100 rounded-lg"></div>
+                                        <!-- Active highlighted track range -->
+                                        <div 
+                                            class="absolute h-1.5 bg-brand-900 rounded-lg"
+                                            :style="{
+                                                left: `${(priceMin / maxPrice) * 100}%`,
+                                                right: `${100 - (priceMax / maxPrice) * 100}%`
+                                            }"
+                                        ></div>
+                                        <!-- Min range input -->
                                         <input
-                                            type="text"
-                                            placeholder="Name or brand..."
-                                            v-model="searchQuery"
-                                            class="w-full px-3 py-3 outline-none bg-transparent text-sm placeholder:text-slate-300 font-medium"
+                                            type="range"
+                                            v-model.number="priceMin"
+                                            :min="0"
+                                            :max="maxPrice"
+                                            :step="50"
+                                            class="absolute w-full pointer-events-none appearance-none bg-transparent accent-brand-900 focus:outline-none"
+                                            :style="{ zIndex: priceMin > maxPrice - 100 ? 5 : 3 }"
+                                            @input="priceMin = Math.min(priceMin, priceMax)"
                                         />
-                                        <button v-if="searchQuery" @click="searchQuery = ''" class="text-slate-300 hover:text-slate-500">
-                                            <X :size="14" />
+                                        <!-- Max range input -->
+                                        <input
+                                            type="range"
+                                            v-model.number="priceMax"
+                                            :min="0"
+                                            :max="maxPrice"
+                                            :step="50"
+                                            class="absolute w-full pointer-events-none appearance-none bg-transparent accent-brand-900 focus:outline-none"
+                                            :style="{ zIndex: 4 }"
+                                            @input="priceMax = Math.max(priceMax, priceMin)"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- Divider -->
+                                <div class="h-px bg-slate-100"></div>
+
+                                <!-- Category -->
+                                <div>
+                                    <label class="text-sm font-bold text-slate-800 mb-3 block">Category</label>
+                                    <div class="space-y-1">
+                                        <button
+                                            v-for="cat in allCategories"
+                                            :key="cat"
+                                            @click="selectedCategory = cat"
+                                            class="w-full flex items-center justify-between py-2 px-3 text-sm font-medium transition-all text-left rounded-xl border-l-4"
+                                            :class="selectedCategory === cat
+                                                ? 'text-brand-900 font-bold bg-brand-50/60 border-brand-900 shadow-sm shadow-brand-900/5'
+                                                : 'text-slate-600 hover:text-brand-900 hover:bg-slate-50 border-transparent'"
+                                        >
+                                            <span>{{ cat }}</span>
+                                            <span 
+                                                class="text-xs px-2 py-0.5 rounded-full transition-all"
+                                                :class="selectedCategory === cat ? 'bg-brand-100 text-brand-900 font-bold' : 'bg-slate-50 text-slate-400'"
+                                            >
+                                                {{ cat === 'All' ? props.products.length : props.products.filter(p => (p.category_item?.name || p.category) === cat).length }}
+                                            </span>
                                         </button>
                                     </div>
                                 </div>
@@ -202,7 +256,7 @@ const buyNow = (product: any) => {
 
                                 <!-- Sort By -->
                                 <div>
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Sort By</label>
+                                    <label class="text-sm font-bold text-slate-800 mb-3 block">Sort By</label>
                                     <div class="relative">
                                         <select
                                             v-model="sortBy"
@@ -221,72 +275,9 @@ const buyNow = (product: any) => {
                                 <!-- Divider -->
                                 <div class="h-px bg-slate-100"></div>
 
-                                <!-- Price Range -->
-                                <div>
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Price Range</label>
-                                    <div class="flex items-center justify-between text-sm font-bold text-brand-900 mb-4">
-                                        <span>৳{{ priceMin }}</span>
-                                        <span>৳{{ priceMax }}</span>
-                                    </div>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <p class="text-xs text-slate-400 mb-1">Min Price</p>
-                                            <input
-                                                type="range"
-                                                v-model.number="priceMin"
-                                                :min="0"
-                                                :max="maxPrice"
-                                                :step="50"
-                                                class="w-full accent-brand-900 cursor-pointer"
-                                            />
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-slate-400 mb-1">Max Price</p>
-                                            <input
-                                                type="range"
-                                                v-model.number="priceMax"
-                                                :min="0"
-                                                :max="maxPrice"
-                                                :step="50"
-                                                class="w-full accent-brand-900 cursor-pointer"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Divider -->
-                                <div class="h-px bg-slate-100"></div>
-
-                                <!-- Category -->
-                                <div>
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Category</label>
-                                    <div class="space-y-1.5">
-                                        <button
-                                            v-for="cat in allCategories"
-                                            :key="cat"
-                                            @click="selectedCategory = cat"
-                                            class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                                            :class="selectedCategory === cat
-                                                ? 'bg-brand-900 text-white shadow-md'
-                                                : 'text-slate-600 hover:bg-brand-50 hover:text-brand-900'"
-                                        >
-                                            <span>{{ cat }}</span>
-                                            <span
-                                                class="text-xs rounded-full px-2 py-0.5"
-                                                :class="selectedCategory === cat ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'"
-                                            >
-                                                {{ cat === 'All' ? props.products.length : props.products.filter(p => (p.category_item?.name || p.category) === cat).length }}
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Divider -->
-                                <div class="h-px bg-slate-100"></div>
-
                                 <!-- Brand -->
                                 <div v-if="allBrands.length > 0">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Brand</label>
+                                    <label class="text-sm font-bold text-slate-800 mb-3 block">Brand</label>
                                     <div class="space-y-2">
                                         <label
                                             v-for="brand in allBrands"
@@ -308,8 +299,6 @@ const buyNow = (product: any) => {
                                         </label>
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
                     </aside>
@@ -317,25 +306,66 @@ const buyNow = (product: any) => {
                     <!-- ===== PRODUCT GRID ===== -->
                     <div class="flex-1 min-w-0">
 
-                        <!-- Active filters + Result count bar -->
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-                            <p class="text-slate-500 text-sm hidden lg:block">
-                                Showing <span class="font-black text-brand-900">{{ filteredProducts.length }}</span> of {{ props.products.length }} products
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                                <span v-if="selectedCategory !== 'All'" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
-                                    {{ selectedCategory }}
-                                    <button @click="selectedCategory = 'All'"><X :size="12" /></button>
-                                </span>
-                                <span v-if="selectedBrands.length > 0" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
-                                    {{ selectedBrands.length }} brand(s)
-                                    <button @click="selectedBrands = []"><X :size="12" /></button>
-                                </span>
-                                <span v-if="sortBy !== 'default'" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
-                                    Sorted
-                                    <button @click="sortBy = 'default'"><X :size="12" /></button>
-                                </span>
+                        <!-- Top Navigation & Search Bar (Metronic style) -->
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 bg-white p-6 rounded-[2rem] border border-brand-100 shadow-sm">
+                            <!-- Left: Item counts -->
+                            <div class="text-slate-700 text-sm font-semibold">
+                                <span class="text-brand-900 font-bold">{{ filteredProducts.length }}</span> items found out of {{ props.products.length }}
                             </div>
+
+                            <!-- Right: Search input & Toggle buttons -->
+                            <div class="flex flex-wrap items-center gap-4">
+                                <!-- Search Input Group -->
+                                <div class="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden focus-within:border-brand-500 transition-colors w-full sm:w-80 shadow-sm">
+                                    <input
+                                        type="text"
+                                        placeholder="Search product..."
+                                        v-model="searchQuery"
+                                        class="flex-grow px-4 py-2.5 text-sm font-medium outline-none bg-transparent placeholder:text-slate-400 text-slate-700"
+                                    />
+                                    <div class="border-l border-slate-100 bg-slate-50 px-3.5 py-2.5 flex items-center justify-center text-slate-500">
+                                        <Search :size="16" />
+                                    </div>
+                                </div>
+
+                                <!-- Grid/List view switcher -->
+                                <div class="flex items-center bg-slate-50 p-1.5 rounded-xl border border-slate-200 gap-1 shadow-sm">
+                                    <button
+                                        @click="isGridView = true"
+                                        class="p-2 rounded-lg transition-all"
+                                        :class="isGridView ? 'bg-white text-brand-900 shadow-sm border border-slate-200/50' : 'text-slate-400 hover:text-slate-600'"
+                                    >
+                                        <LayoutGrid :size="18" />
+                                    </button>
+                                    <button
+                                        @click="isGridView = false"
+                                        class="p-2 rounded-lg transition-all"
+                                        :class="!isGridView ? 'bg-white text-brand-900 shadow-sm border border-slate-200/50' : 'text-slate-400 hover:text-slate-600'"
+                                    >
+                                        <List :size="18" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active filters tags row (if any) -->
+                        <div v-if="activeFiltersCount > 0" class="flex flex-wrap gap-2 mb-6">
+                            <span v-if="selectedCategory !== 'All'" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
+                                {{ selectedCategory }}
+                                <button @click="selectedCategory = 'All'"><X :size="12" /></button>
+                            </span>
+                            <span v-if="selectedBrands.length > 0" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
+                                {{ selectedBrands.length }} brand(s)
+                                <button @click="selectedBrands = []"><X :size="12" /></button>
+                            </span>
+                            <span v-if="sortBy !== 'default'" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
+                                Sorted
+                                <button @click="sortBy = 'default'"><X :size="12" /></button>
+                            </span>
+                            <span v-if="priceMax < maxPrice" class="inline-flex items-center gap-1.5 bg-brand-100 text-brand-900 px-3 py-1 rounded-full text-xs font-bold">
+                                Max ৳{{ priceMax }}
+                                <button @click="priceMax = maxPrice"><X :size="12" /></button>
+                            </span>
                         </div>
 
                         <!-- Empty State -->
@@ -345,70 +375,143 @@ const buyNow = (product: any) => {
                             <button @click="resetFilters" class="bg-brand-900 text-white px-8 py-3 rounded-full text-sm font-bold">Reset Filters</button>
                         </div>
 
-                        <!-- Grid -->
-                        <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                            <div
-                                v-for="product in filteredProducts"
-                                :key="product.id"
-                                @click="router.visit('/products/' + product.id)"
-                                class="group bg-white rounded-[2rem] overflow-hidden border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col cursor-pointer"
-                            >
-                                <div class="aspect-[4/3] overflow-hidden relative">
-                                    <img
-                                        :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'"
-                                        :alt="product.name"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                    />
-                                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-brand-900 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-                                        {{ product.category_item?.name || product.category }}
+                        <!-- Grid View vs List View -->
+                        <div v-else>
+                            <!-- Grid View -->
+                            <div v-if="isGridView" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                                <div
+                                    v-for="product in filteredProducts"
+                                    :key="product.id"
+                                    @click="router.visit('/products/' + product.id)"
+                                    class="group bg-white rounded-[2rem] overflow-hidden border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col cursor-pointer"
+                                >
+                                    <div class="aspect-[4/3] overflow-hidden relative">
+                                        <img
+                                            :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'"
+                                            :alt="product.name"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                        />
+                                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-brand-900 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+                                            {{ product.category_item?.name || product.category }}
+                                        </div>
+                                        <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 bg-[#FF007F] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+                                            {{ Math.round(((Number(product.price) - Number(product.offer_price)) / Number(product.price)) * 100) }}% OFF
+                                        </div>
                                     </div>
-                                    <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 bg-[#FF007F] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-                                        {{ Math.round(((Number(product.price) - Number(product.offer_price)) / Number(product.price)) * 100) }}% OFF
-                                    </div>
-                                </div>
 
-                                <div class="p-6 flex-grow flex flex-col">
-                                    <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">{{ product.brand }}</p>
-                                    <h3 class="text-lg font-serif text-slate-900 leading-tight mb-2 flex-grow">{{ product.name }}</h3>
-                                    
-                                    <!-- Price & Review Star -->
-                                    <div class="mt-4">
-                                        <!-- Review Star -->
-                                        <div class="h-5 flex items-center mb-1.5">
-                                            <div v-if="product.reviews_count > 0" class="flex items-center gap-1 text-[#FFD700]">
-                                                <template v-for="i in 5" :key="i">
-                                                    <svg class="w-3.5 h-3.5" :class="i <= Math.round(Number(product.reviews_avg_rating)) ? 'fill-current' : 'text-slate-200'" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <div class="p-6 flex-grow flex flex-col">
+                                        <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">{{ product.brand }}</p>
+                                        <h3 class="text-lg font-serif text-slate-900 leading-tight mb-2 flex-grow">{{ product.name }}</h3>
+                                        
+                                        <!-- Price & Review Star -->
+                                        <div class="mt-4">
+                                            <!-- Review Star -->
+                                            <div class="h-5 flex items-center mb-1.5">
+                                                <div v-if="product.reviews_count > 0" class="flex items-center gap-1 text-[#FFD700]">
+                                                    <template v-for="i in 5" :key="i">
+                                                        <svg class="w-3.5 h-3.5" :class="i <= Math.round(Number(product.reviews_avg_rating)) ? 'fill-current' : 'text-slate-200'" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                    </template>
+                                                    <span class="text-[10px] text-slate-400 ml-1">({{ product.reviews_count }})</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Price Section Horizontally -->
+                                            <div class="flex items-center gap-2.5">
+                                                <template v-if="Number(product.offer_price) > 0">
+                                                    <p class="text-xl font-bold text-brand-900">৳{{ Number(product.offer_price).toFixed(2) }}</p>
+                                                    <span class="text-sm text-slate-400 line-through">৳{{ Number(product.price).toFixed(2) }}</span>
                                                 </template>
-                                                <span class="text-[10px] text-slate-400 ml-1">({{ product.reviews_count }})</span>
+                                                <template v-else>
+                                                    <p class="text-xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
+                                                </template>
                                             </div>
                                         </div>
-                                        
-                                        <!-- Price Section Horizontally -->
-                                        <div class="flex items-center gap-2.5">
-                                            <template v-if="Number(product.offer_price) > 0">
-                                                <p class="text-xl font-bold text-brand-900">৳{{ Number(product.offer_price).toFixed(2) }}</p>
-                                                <span class="text-sm text-slate-400 line-through">৳{{ Number(product.price).toFixed(2) }}</span>
-                                            </template>
-                                            <template v-else>
-                                                <p class="text-xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
-                                            </template>
+
+                                        <!-- Action Buttons Underneath -->
+                                        <div class="flex items-center gap-3 mt-5">
+                                            <button 
+                                                @click.stop="addToCart(product)"
+                                                class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-900 text-xs font-bold py-3 rounded-xl transition-all border border-brand-200 text-center"
+                                            >
+                                                Add to Cart
+                                            </button>
+                                            <button 
+                                                @click.stop="buyNow(product)"
+                                                class="flex-1 bg-brand-900 hover:bg-brand-800 text-white text-xs font-bold py-3 rounded-xl transition-all text-center shadow-md shadow-brand-900/10"
+                                            >
+                                                Order
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- List View -->
+                            <div v-else class="flex flex-col gap-6">
+                                <div
+                                    v-for="product in filteredProducts"
+                                    :key="product.id"
+                                    @click="router.visit('/products/' + product.id)"
+                                    class="group bg-white rounded-[2rem] overflow-hidden border border-brand-100 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-500 flex flex-col md:flex-row cursor-pointer p-6 gap-6"
+                                >
+                                    <!-- Image Block -->
+                                    <div class="w-full md:w-56 h-48 md:h-auto aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden relative flex-shrink-0 bg-slate-50">
+                                        <img
+                                            :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'"
+                                            :alt="product.name"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                        />
+                                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-brand-900 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm z-10">
+                                            {{ product.category_item?.name || product.category }}
+                                        </div>
+                                        <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 bg-[#FF007F] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm z-10">
+                                            {{ Math.round(((Number(product.price) - Number(product.offer_price)) / Number(product.price)) * 100) }}% OFF
                                         </div>
                                     </div>
 
-                                    <!-- Action Buttons Underneath -->
-                                    <div class="flex items-center gap-3 mt-5">
-                                        <button 
-                                            @click.stop="addToCart(product)"
-                                            class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-900 text-xs font-bold py-3 rounded-xl transition-all border border-brand-200 text-center"
-                                        >
-                                            Add to Cart
-                                        </button>
-                                        <button 
-                                            @click.stop="buyNow(product)"
-                                            class="flex-1 bg-brand-900 hover:bg-brand-800 text-white text-xs font-bold py-3 rounded-xl transition-all text-center shadow-md shadow-brand-900/10"
-                                        >
-                                            Order
-                                        </button>
+                                    <!-- Content Block -->
+                                    <div class="flex-grow flex flex-col justify-between py-2">
+                                        <div>
+                                            <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">{{ product.brand }}</p>
+                                            <h3 class="text-2xl font-serif text-slate-900 leading-tight mb-2">{{ product.name }}</h3>
+                                            
+                                            <!-- Review Star -->
+                                            <div class="h-5 flex items-center mb-3">
+                                                <div v-if="product.reviews_count > 0" class="flex items-center gap-1 text-[#FFD700]">
+                                                    <template v-for="i in 5" :key="i">
+                                                        <svg class="w-3.5 h-3.5" :class="i <= Math.round(Number(product.reviews_avg_rating)) ? 'fill-current' : 'text-slate-200'" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                    </template>
+                                                    <span class="text-[10px] text-slate-400 ml-1">({{ product.reviews_count }})</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Price Section Horizontally -->
+                                            <div class="flex items-center gap-2.5">
+                                                <template v-if="Number(product.offer_price) > 0">
+                                                    <p class="text-2xl font-bold text-brand-900">৳{{ Number(product.offer_price).toFixed(2) }}</p>
+                                                    <span class="text-base text-slate-400 line-through">৳{{ Number(product.price).toFixed(2) }}</span>
+                                                </template>
+                                                <template v-else>
+                                                    <p class="text-2xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Buttons Row -->
+                                        <div class="flex items-center gap-3 mt-6 max-w-xs">
+                                            <button 
+                                                @click.stop="addToCart(product)"
+                                                class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-900 text-xs font-bold py-3 rounded-xl transition-all border border-brand-200 text-center"
+                                            >
+                                                Add to Cart
+                                            </button>
+                                            <button 
+                                                @click.stop="buyNow(product)"
+                                                class="flex-1 bg-brand-900 hover:bg-brand-800 text-white text-xs font-bold py-3 rounded-xl transition-all text-center shadow-md shadow-brand-900/10"
+                                            >
+                                                Order
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -420,3 +523,16 @@ const buyNow = (product: any) => {
         </div>
     </PublicLayout>
 </template>
+
+<style scoped>
+input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+}
+input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+}
+</style>

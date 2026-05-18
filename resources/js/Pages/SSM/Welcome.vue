@@ -99,6 +99,38 @@ const featuredProductsList = computed(() => {
     }).slice(0, 8);
 });
 
+const activeFeaturedServiceCategory = ref('All');
+
+const featuredServiceCategories = computed(() => {
+    const cats = new Set();
+    if (props.services) {
+        props.services.forEach(s => {
+            const name = s.category_item?.name || s.category;
+            if (name) cats.add(name);
+        });
+    }
+    return ['All', ...Array.from(cats)].sort();
+});
+
+const featuredServicesList = computed(() => {
+    if (!props.services) return [];
+    if (activeFeaturedServiceCategory.value === 'All') {
+        return props.services.slice(0, 8); // show max 8
+    }
+    return props.services.filter(s => {
+        const name = s.category_item?.name || s.category;
+        return name === activeFeaturedServiceCategory.value;
+    }).slice(0, 8);
+});
+
+const WHATSAPP_NUMBER = "01911-879571";
+
+const openWhatsAppForService = (service: any) => {
+    if (!service) return;
+    const message = encodeURIComponent(`Hello ${APP_NAME.value}! I'm interested in booking the service: ${service.name} (Category: ${service.category_item?.name || service.category}, Price: ৳${service.price}). Can I book an appointment?`);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER.replace('-', '')}?text=${message}`, '_blank');
+};
+
 let heroTimer: ReturnType<typeof setInterval> | null = null;
 let categoryTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -254,8 +286,8 @@ const buyNow = (product: any) => {
                                 v-for="cat in featuredCategories" 
                                 :key="cat"
                                 @click="activeFeaturedCategory = cat"
-                                class="px-5 py-2 rounded-full text-sm font-semibold transition-all border"
-                                :class="activeFeaturedCategory === cat ? 'bg-[#FF007F] text-white border-[#FF007F]' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'"
+                                class="px-5 py-2.5 rounded-full text-sm font-bold transition-all border shadow-sm"
+                                :class="activeFeaturedCategory === cat ? 'bg-brand-900 text-white border-brand-900 shadow-md shadow-brand-900/10' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-brand-900 hover:bg-slate-50'"
                             >
                                 {{ cat }}
                             </button>
@@ -271,7 +303,7 @@ const buyNow = (product: any) => {
                             class="bg-white rounded-3xl overflow-hidden group flex flex-col relative cursor-pointer border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
                         >
                             <!-- Badge -->
-                            <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 z-10 bg-[#FF007F] text-white text-[10px] font-bold px-2 py-1 rounded">
+                            <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 z-10 bg-brand-900 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-brand-900/10">
                                 {{ Math.round(((Number(product.price) - Number(product.offer_price)) / Number(product.price)) * 100) }}% OFF
                             </div>
                             
@@ -281,6 +313,7 @@ const buyNow = (product: any) => {
                                     :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://placehold.co/400x400/F8F9FA/CBD5E1?text=' + product.name" 
                                     :alt="product.name"
                                     class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                
                                 />
                             </div>
                             
@@ -302,13 +335,13 @@ const buyNow = (product: any) => {
                                     </div>
                                     
                                     <!-- Price Section Horizontally -->
-                                    <div class="flex items-center gap-2 mb-2">
+                                    <div class="flex items-center gap-2.5 mb-2">
                                         <template v-if="Number(product.offer_price) > 0">
-                                            <span class="text-[#FF007F] text-lg font-bold">৳{{ Number(product.offer_price) }}</span>
-                                            <span class="text-slate-400 text-sm line-through decoration-slate-300">৳{{ Number(product.price) }}</span>
+                                            <span class="text-brand-900 text-lg font-black">৳{{ Number(product.offer_price) }}</span>
+                                            <span class="text-slate-400 text-xs font-semibold line-through decoration-slate-300">৳{{ Number(product.price) }}</span>
                                         </template>
                                         <template v-else>
-                                            <span class="text-[#FF007F] text-lg font-bold">৳{{ Number(product.price) }}</span>
+                                            <span class="text-brand-900 text-lg font-black">৳{{ Number(product.price) }}</span>
                                         </template>
                                     </div>
                                 </div>
@@ -317,19 +350,18 @@ const buyNow = (product: any) => {
                                 <div class="flex items-center gap-3 mt-4">
                                     <button 
                                         @click.stop="addToCart(product)"
-                                        class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-900 text-xs font-bold py-3 rounded-xl transition-all border border-brand-200 text-center"
+                                        class="flex-grow bg-brand-50 hover:bg-brand-100 text-brand-900 text-[11px] font-black py-3 rounded-xl transition-all border border-brand-200 text-center uppercase tracking-wider"
                                     >
                                         Add to Cart
                                     </button>
                                     <button 
                                         @click.stop="buyNow(product)"
-                                        class="flex-1 bg-[#FCE69C] hover:bg-[#F3D77A] text-slate-800 text-xs font-bold py-3 rounded-xl transition-all text-center shadow-md"
+                                        class="flex-grow bg-brand-900 hover:bg-brand-800 text-white text-[11px] font-black py-3 rounded-xl transition-all text-center shadow-md shadow-brand-900/10 uppercase tracking-wider"
                                     >
                                         Order
                                     </button>
                                 </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                     
@@ -339,6 +371,94 @@ const buyNow = (product: any) => {
                             class="inline-block bg-white text-slate-800 border border-slate-300 px-10 py-2.5 rounded-full text-sm font-semibold hover:border-slate-400 hover:bg-slate-50 transition-colors"
                         >
                             See All
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SPECIALIZED SERVICES SECTION -->
+            <section class="py-20 bg-slate-50 border-t border-brand-100">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10">
+                        <h2 class="text-4xl md:text-5xl font-serif text-slate-900 mb-8">Our spicalize services</h2>
+                        
+                        <!-- Category Tabs -->
+                        <div class="flex flex-wrap justify-center gap-3 mb-12">
+                            <button 
+                                v-for="cat in featuredServiceCategories" 
+                                :key="cat"
+                                @click="activeFeaturedServiceCategory = cat"
+                                class="px-5 py-2.5 rounded-full text-sm font-bold transition-all border shadow-sm"
+                                :class="activeFeaturedServiceCategory === cat ? 'bg-brand-900 text-white border-brand-900 shadow-md shadow-brand-900/10' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-brand-900 hover:bg-white'"
+                            >
+                                {{ cat }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Services Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div 
+                            v-for="service in featuredServicesList" 
+                            :key="service.id"
+                            @click="router.visit('/services/' + service.id)"
+                            class="bg-white rounded-3xl overflow-hidden group flex flex-col relative cursor-pointer border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                        >
+                            <!-- Duration Badge -->
+                            <div class="absolute top-4 right-4 z-10 bg-brand-900 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-brand-900/10 flex items-center gap-1">
+                                <Clock :size="10" />
+                                <span>{{ service.duration }}</span>
+                            </div>
+                            
+                            <!-- Image -->
+                            <div class="aspect-square bg-[#F8F9FA] rounded-3xl overflow-hidden relative flex items-center justify-center p-4 mb-4">
+                                <img 
+                                    :src="service.image_url || 'https://picsum.photos/400/400?random=' + service.id" 
+                                    :alt="service.name"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 rounded-2xl"
+                                />
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="px-2 pb-4 flex-grow flex flex-col">
+                                <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">
+                                    {{ service.category_item?.name || service.category }}
+                                </p>
+                                <h3 class="text-[15px] font-medium text-slate-800 leading-snug mb-2 flex-grow">{{ service.name }}</h3>
+                                <p class="text-xs text-slate-400 line-clamp-2 mb-3 leading-relaxed">{{ service.description }}</p>
+                                
+                                <!-- Price Section -->
+                                <div class="mt-auto">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <span class="text-brand-900 text-lg font-black">৳{{ Number(service.price) }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions Underneath -->
+                                <div class="flex items-center gap-3 mt-auto">
+                                    <button 
+                                        @click.stop="router.visit('/services/' + service.id)"
+                                        class="flex-grow bg-brand-50 hover:bg-brand-100 text-brand-900 text-[11px] font-black py-3 rounded-xl transition-all border border-brand-200 text-center uppercase tracking-wider"
+                                    >
+                                        Details
+                                    </button>
+                                    <button 
+                                        @click.stop="openWhatsAppForService(service)"
+                                        class="flex-grow bg-brand-900 hover:bg-brand-800 text-white text-[11px] font-black py-3 rounded-xl transition-all text-center shadow-md shadow-brand-900/10 uppercase tracking-wider"
+                                    >
+                                        Book Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 text-center">
+                        <Link 
+                            href="/services"
+                            class="inline-block bg-white text-slate-800 border border-slate-300 px-10 py-2.5 rounded-full text-sm font-semibold hover:border-slate-400 hover:bg-slate-50 transition-colors"
+                        >
+                            See All Services
                         </Link>
                     </div>
                 </div>
