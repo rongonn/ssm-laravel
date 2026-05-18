@@ -12,6 +12,7 @@ use SSM\Models\Gallery;
 use SSM\Models\Contact;
 use SSM\Models\Category;
 use SSM\Models\Order;
+use SSM\Models\ProductReview;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -26,6 +27,7 @@ class DashboardController extends Controller
         'categories'   => Category::class,
         'orders'       => Order::class,
         'contacts'     => Contact::class,
+        'product_reviews' => ProductReview::class,
     ];
 
     public function index()
@@ -403,6 +405,28 @@ class DashboardController extends Controller
         $product = Product::findOrFail($id);
         $product->update(['is_active' => !$product->is_active]);
         return back()->with('success', 'Status updated');
+    }
+
+    public function reviewsIndex(Request $request)
+    {
+        $query = ProductReview::with('product');
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('review_text', 'like', '%' . $search . '%');
+            });
+        }
+        return view('ssm::admin.reviews.index', [
+            'reviews' => $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString()
+        ]);
+    }
+
+    public function toggleReviewStatus($id)
+    {
+        $review = ProductReview::findOrFail($id);
+        $review->update(['is_approved' => !$review->is_approved]);
+        return back()->with('success', 'Review status updated');
     }
 
     public function addProductImage(Request $request, $id)

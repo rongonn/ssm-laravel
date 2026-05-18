@@ -272,6 +272,7 @@
                                 </div>
                             </div>
                         @endforeach
+                    </div>
                 </div>
 
                 {{-- TAB: SLIDER --}}

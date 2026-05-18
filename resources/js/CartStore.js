@@ -24,10 +24,14 @@ export const cart = reactive({
                 imageUrl = 'https://placehold.co/400x400';
             }
 
+            const finalPrice = parseFloat(product.offer_price) > 0 
+                ? parseFloat(product.offer_price) 
+                : parseFloat(product.price);
+
             this.items.push({
                 id: product.id,
                 name: product.name,
-                price: parseFloat(product.price),
+                price: finalPrice,
                 image: imageUrl,
                 brand: product.brand,
                 quantity: quantity

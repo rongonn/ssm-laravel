@@ -41,6 +41,13 @@ return [
         'role'  => 'admin',
     ],
     [
+        'sl'    => 65,
+        'title' => "Product Reviews",
+        'icon'  => 'bi bi-star-half',
+        'url'   => '/admin/reviews',
+        'role'  => 'admin',
+    ],
+    [
         'sl'    => 7,
         'title' => "Team",
         'icon'  => 'bi bi-people-fill',

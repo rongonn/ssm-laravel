@@ -46,7 +46,14 @@
                         </div>
                     </td>
                     <td>{{ $product->categoryItem ? $product->categoryItem->name : $product->category }}</td>
-                    <td>৳{{ $product->price }}</td>
+                    <td>
+                        @if($product->offer_price > 0)
+                            <span class="text-muted text-decoration-line-through fs-7">৳{{ $product->price }}</span>
+                            <span class="text-danger fw-bold">৳{{ $product->offer_price }}</span>
+                        @else
+                            ৳{{ $product->price }}
+                        @endif
+                    </td>
                     <td>
                         <form action="{{ route('admin.products.toggle', $product->id) }}" method="POST">
                             @csrf
@@ -103,8 +110,15 @@
                                                 <div class="fw-bold fs-5 text-gray-800">{{ $product->brand ?? 'N/A' }}</div>
                                             </div>
                                             <div class="col-6">
-                                                <label class="fw-black text-muted text-uppercase fs-7 mb-2">Price</label>
-                                                <div class="fw-bold fs-5 text-brand-900">৳{{ $product->price }}</div>
+                                                <label class="fw-black text-muted text-uppercase fs-7 mb-2">Price / Offer Price</label>
+                                                <div class="fw-bold fs-5 text-brand-900">
+                                                    @if($product->offer_price > 0)
+                                                        <span class="text-muted text-decoration-line-through fs-6">৳{{ $product->price }}</span>
+                                                        <span class="text-danger">৳{{ $product->offer_price }}</span>
+                                                    @else
+                                                        ৳{{ $product->price }}
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mb-5">
@@ -171,13 +185,17 @@
                                         <input type="text" class="form-control form-control-solid" name="name" value="{{ $product->name }}" required />
                                     </div>
                                     <div class="row g-9 mb-7">
-                                        <div class="col-md-6 fv-row">
+                                        <div class="col-md-4 fv-row">
                                             <label class="fs-6 fw-semibold mb-2">Brand</label>
                                             <input type="text" class="form-control form-control-solid" name="brand" value="{{ $product->brand }}" />
                                         </div>
-                                        <div class="col-md-6 fv-row">
+                                        <div class="col-md-4 fv-row">
                                             <label class="required fs-6 fw-semibold mb-2">Price (৳)</label>
                                             <input type="number" class="form-control form-control-solid" name="price" value="{{ $product->price }}" required />
+                                        </div>
+                                        <div class="col-md-4 fv-row">
+                                            <label class="fs-6 fw-semibold mb-2">Offer Price (৳)</label>
+                                            <input type="number" class="form-control form-control-solid" name="offer_price" value="{{ $product->offer_price ?? 0 }}" />
                                         </div>
                                     </div>
                                     <div class="fv-row mb-7">
@@ -267,13 +285,17 @@
                         <input type="text" class="form-control form-control-solid" name="name" required />
                     </div>
                     <div class="row g-9 mb-7">
-                        <div class="col-md-6 fv-row">
+                        <div class="col-md-4 fv-row">
                             <label class="fs-6 fw-semibold mb-2">Brand</label>
                             <input type="text" class="form-control form-control-solid" name="brand" placeholder="e.g. L'Oreal" />
                         </div>
-                        <div class="col-md-6 fv-row">
+                        <div class="col-md-4 fv-row">
                             <label class="required fs-6 fw-semibold mb-2">Price (৳)</label>
                             <input type="number" class="form-control form-control-solid" name="price" required />
+                        </div>
+                        <div class="col-md-4 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">Offer Price (৳)</label>
+                            <input type="number" class="form-control form-control-solid" name="offer_price" value="0" />
                         </div>
                     </div>
                     <div class="fv-row mb-7">

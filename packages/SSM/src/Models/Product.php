@@ -10,7 +10,7 @@ class Product extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name', 'description', 'price', 'brand', 'image_url', 'is_active', 'category_id', 'category'
+        'name', 'description', 'price', 'offer_price', 'brand', 'image_url', 'is_active', 'category_id', 'category'
     ];
 
     protected $casts = [
@@ -43,5 +43,10 @@ class Product extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
     }
 }

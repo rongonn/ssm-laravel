@@ -13,6 +13,7 @@ const props = defineProps<{
     products: any[];
     services: any[];
     team: any[];
+    categories?: any[];
 }>();
 
 const page = usePage();
@@ -23,104 +24,98 @@ const selectedImage = ref<string | null>(null);
 const LOGO_URL = computed(() => (settings.value as any).company_logo ? `/storage/${(settings.value as any).company_logo}` : "https://placehold.co/150");
 const APP_NAME = computed(() => (settings.value as any).application_name || "Bioshah.com");
 
-const HERO_IMAGE = computed(() => {
-    const desktop = (settings.value as any).landing_banner 
+const heroSliderIndex = ref(0);
+const sliderImages = computed(() => {
+    try {
+        const raw = (settings.value as any).slider_images;
+        if (!raw) throw new Error('No slider images');
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed.map(img => `/storage/${img}`);
+        }
+    } catch(e) {}
+    
+    // Fallback if no slider images are set
+    const fallbackDesktop = (settings.value as any).landing_banner 
         ? `/storage/${(settings.value as any).landing_banner}`
         : "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=2000";
-    
-    const mobile = (settings.value as any).mobile_landing_banner 
-        ? `/storage/${(settings.value as any).mobile_landing_banner}`
-        : desktop;
-
-    return { desktop, mobile };
+        
+    return [fallbackDesktop];
 });
 
-// --- SERVICE CAROUSEL ---
-const serviceScrollRef = ref<HTMLElement | null>(null);
-const serviceIndex = ref(0);
+// --- CATEGORY CAROUSEL ---
+const categoryScrollRef = ref<HTMLElement | null>(null);
+const categoryIndex = ref(0);
 
-const serviceItemWidth = computed(() => {
-    if (!serviceScrollRef.value) return 408; // 400px + 8px gap
-    const firstItem = serviceScrollRef.value.querySelector(':scope > div') as HTMLElement | null;
-    if (!firstItem) return 408;
-    return firstItem.offsetWidth + 32; // 32px = gap-8
+const categoryItemWidth = computed(() => {
+    if (!categoryScrollRef.value) return 316; // e.g. 284px width + 32px gap
+    const firstItem = categoryScrollRef.value.querySelector(':scope > a') as HTMLElement | null;
+    if (!firstItem) return 316;
+    return firstItem.offsetWidth + 32; 
 });
 
-const serviceTotalItems = computed(() => props.services.length + 1); // +1 for "view all" card
+const categoryTotalItems = computed(() => (props.categories?.length || 0));
 
-const scrollService = (dir: 'left' | 'right') => {
-    if (!serviceScrollRef.value) return;
-    if (dir === 'right' && serviceIndex.value < serviceTotalItems.value - 1) {
-        serviceIndex.value++;
-    } else if (dir === 'left' && serviceIndex.value > 0) {
-        serviceIndex.value--;
+const scrollCategory = (dir: 'left' | 'right') => {
+    if (!categoryScrollRef.value) return;
+    if (dir === 'right' && categoryIndex.value < categoryTotalItems.value - 1) {
+        categoryIndex.value++;
+    } else if (dir === 'left' && categoryIndex.value > 0) {
+        categoryIndex.value--;
     }
-    serviceScrollRef.value.scrollTo({ left: serviceIndex.value * serviceItemWidth.value, behavior: 'smooth' });
+    categoryScrollRef.value.scrollTo({ left: categoryIndex.value * categoryItemWidth.value, behavior: 'smooth' });
 };
 
-const goToService = (idx: number) => {
-    if (!serviceScrollRef.value) return;
-    serviceIndex.value = idx;
-    serviceScrollRef.value.scrollTo({ left: idx * serviceItemWidth.value, behavior: 'smooth' });
+const goToCategory = (idx: number) => {
+    if (!categoryScrollRef.value) return;
+    categoryIndex.value = idx;
+    categoryScrollRef.value.scrollTo({ left: idx * categoryItemWidth.value, behavior: 'smooth' });
 };
 
-const onServiceScroll = () => {
-    if (!serviceScrollRef.value) return;
-    const idx = Math.round(serviceScrollRef.value.scrollLeft / serviceItemWidth.value);
-    serviceIndex.value = idx;
+const onCategoryScroll = () => {
+    if (!categoryScrollRef.value) return;
+    const idx = Math.round(categoryScrollRef.value.scrollLeft / categoryItemWidth.value);
+    categoryIndex.value = idx;
 };
 
-// --- PRODUCT CAROUSEL ---
-const productScrollRef = ref<HTMLElement | null>(null);
-const productIndex = ref(0);
+const activeFeaturedCategory = ref('All');
 
-const productItemWidth = computed(() => {
-    if (!productScrollRef.value) return 358; // 350px + 8px gap
-    const firstItem = productScrollRef.value.querySelector(':scope > div') as HTMLElement | null;
-    if (!firstItem) return 358;
-    return firstItem.offsetWidth + 32;
+const featuredCategories = computed(() => {
+    const cats = new Set();
+    props.products.forEach(p => {
+        const name = p.category_item?.name || p.category;
+        if (name) cats.add(name);
+    });
+    return ['All', ...Array.from(cats)].sort();
 });
 
-const productTotalItems = computed(() => props.products.length + 1);
-
-const scrollProduct = (dir: 'left' | 'right') => {
-    if (!productScrollRef.value) return;
-    if (dir === 'right' && productIndex.value < productTotalItems.value - 1) {
-        productIndex.value++;
-    } else if (dir === 'left' && productIndex.value > 0) {
-        productIndex.value--;
+const featuredProductsList = computed(() => {
+    if (activeFeaturedCategory.value === 'All') {
+        return props.products.slice(0, 8); // show max 8
     }
-    productScrollRef.value.scrollTo({ left: productIndex.value * productItemWidth.value, behavior: 'smooth' });
-};
+    return props.products.filter(p => {
+        const name = p.category_item?.name || p.category;
+        return name === activeFeaturedCategory.value;
+    }).slice(0, 8);
+});
 
-const goToProduct = (idx: number) => {
-    if (!productScrollRef.value) return;
-    productIndex.value = idx;
-    productScrollRef.value.scrollTo({ left: idx * productItemWidth.value, behavior: 'smooth' });
-};
-
-const onProductScroll = () => {
-    if (!productScrollRef.value) return;
-    const idx = Math.round(productScrollRef.value.scrollLeft / productItemWidth.value);
-    productIndex.value = idx;
-};
-
-// Auto-play timers
-let serviceTimer: ReturnType<typeof setInterval> | null = null;
-let productTimer: ReturnType<typeof setInterval> | null = null;
+let heroTimer: ReturnType<typeof setInterval> | null = null;
+let categoryTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
-    serviceTimer = setInterval(() => scrollService('right'), 4000);
-    productTimer = setInterval(() => scrollProduct('right'), 3500);
-    serviceScrollRef.value?.addEventListener('scroll', onServiceScroll);
-    productScrollRef.value?.addEventListener('scroll', onProductScroll);
+    if (sliderImages.value.length > 1) {
+        heroTimer = setInterval(() => {
+            heroSliderIndex.value = (heroSliderIndex.value + 1) % sliderImages.value.length;
+        }, 5000); // 5 seconds per slide
+    }
+    categoryTimer = setInterval(() => scrollCategory('right'), 4500);
+    categoryScrollRef.value?.addEventListener('scroll', onCategoryScroll);
 });
 
 onBeforeUnmount(() => {
-    if (serviceTimer) clearInterval(serviceTimer);
-    if (productTimer) clearInterval(productTimer);
-    serviceScrollRef.value?.removeEventListener('scroll', onServiceScroll);
-    productScrollRef.value?.removeEventListener('scroll', onProductScroll);
+    if (heroTimer) clearInterval(heroTimer);
+    if (categoryTimer) clearInterval(categoryTimer);
+    categoryScrollRef.value?.removeEventListener('scroll', onCategoryScroll);
 });
 
 const addToCart = (product: any) => {
@@ -138,229 +133,214 @@ const buyNow = (product: any) => {
         <Head title="Home | Premium Salon & Spa" />
         
         <div class="overflow-x-hidden">
-            <!-- Hero Section -->
-            <section class="relative h-[60vh] md:h-[90vh] flex items-center">
+            <!-- Hero Section (Slider) -->
+            <section class="relative h-[60vh] md:h-[90vh] flex items-center overflow-hidden">
                 <div class="absolute inset-0 z-0">
-                    <picture>
-                        <source media="(max-width: 768px)" :srcset="HERO_IMAGE.mobile">
-                        <img 
-                            :src="HERO_IMAGE.desktop" 
-                            class="w-full h-full object-cover"
-                            :alt="`${APP_NAME} Hero`"
-                        />
-                    </picture>
-                </div>
-            </section>
-
-            <!-- DYNAMIC SERVICES CAROUSEL -->
-            <section class="py-24 bg-brand-50">
-                <div class="max-w-7xl mx-auto px-4 mb-12">
-                    <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Artisanal Rituals</h2>
-                    <p class="text-4xl md:text-5xl font-serif text-slate-900">Our Signature Services</p>
-                </div>
-
-                <div class="max-w-7xl mx-auto px-4 relative group/slider">
-                    <!-- Navigation Overlays -->
-                    <button 
-                        @click="scrollService('left')" 
-                        class="absolute -left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/slider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
-                        :disabled="serviceIndex === 0"
-                    >
-                        <ChevronLeft :size="24" />
-                    </button>
-                    <button 
-                        @click="scrollService('right')" 
-                        class="absolute -right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/slider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
-                        :disabled="serviceIndex >= serviceTotalItems - 1"
-                    >
-                        <ChevronRight :size="24" />
-                    </button>
-
-                    <div 
-                        ref="serviceScrollRef"
-                        class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth pb-8"
-                    >
+                    <transition-group name="fade" tag="div" class="w-full h-full relative">
                         <div 
-                            v-for="service in props.services"
-                            :key="service.id" 
-                            class="min-w-[320px] md:min-w-[400px] bg-white rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
+                            v-for="(img, index) in sliderImages" 
+                            :key="img"
+                            v-show="heroSliderIndex === index"
+                            class="absolute inset-0 w-full h-full"
                         >
-                            <div class="h-64 relative overflow-hidden">
-                                <img 
-                                    :src="service.image_url || 'https://picsum.photos/800/600?random=' + service.id" 
-                                    :alt="service.name" 
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                />
-                                <div class="absolute top-4 right-4 bg-brand-900 text-white px-4 py-2 rounded-full font-bold shadow-lg">
-                                    ৳{{ service.price }}
-                                </div>
-                            </div>
-                            <div class="p-10 flex-grow flex flex-col items-center text-center">
-                                <div class="flex items-center space-x-2 text-brand-500 font-bold text-xs uppercase tracking-widest mb-4">
-                                    <span>{{ service.category_item?.name || service.category }}</span>
-                                    <span>•</span>
-                                    <div class="flex items-center space-x-1">
-                                        <Clock :size="14" />
-                                        <span>{{ service.duration }}</span>
-                                    </div>
-                                </div>
-                                <h3 class="text-2xl font-serif text-slate-900 mb-4 line-clamp-1">{{ service.name }}</h3>
-                                <p class="text-slate-500 mb-8 line-clamp-2 leading-relaxed flex-grow">{{ service.description }}</p>
-                                
-                                <Link 
-                                    :href="`/services/${service.id}`" 
-                                    class="inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-8 py-3.5 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/20"
-                                >
-                                    <span>View Details</span>
-                                    <ArrowRight :size="14" />
-                                </Link>
-                            </div>
+                            <img 
+                                :src="img" 
+                                class="w-full h-full object-cover"
+                                :alt="`${APP_NAME} Hero Slide ${index + 1}`"
+                            />
                         </div>
-                        
-                        <div class="min-w-[320px] md:min-w-[400px] flex flex-col items-center justify-center p-12 bg-white rounded-[2rem] border-2 border-dashed border-brand-200 group hover:border-brand-900 transition-colors">
-                            <Link href="/services" class="text-center group flex flex-col items-center">
-                                <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm transition-transform group-hover:scale-110 group-hover:bg-brand-900 group-hover:text-white">
-                                    <Scissors :size="28" />
-                                </div>
-                                <h3 class="text-2xl font-serif text-slate-900 mb-2">Service Menu</h3>
-                                <p class="text-slate-500 mb-6 text-sm">View all artisanal rituals</p>
-                                <div class="flex items-center space-x-2 text-brand-900 font-bold uppercase text-xs tracking-[0.2em]">
-                                    <span>Full Menu</span>
-                                    <ArrowRight :size="16" />
-                                </div>
-                            </Link>
-                        </div>
-                    </div>
+                    </transition-group>
+                    
+                    <div class="absolute inset-0 bg-black/20"></div>
                 </div>
+
+                <!-- Slider Controls -->
+                <button 
+                    v-if="sliderImages.length > 1"
+                    @click="heroSliderIndex = (heroSliderIndex - 1 + sliderImages.length) % sliderImages.length" 
+                    class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm transition-all shadow-lg"
+                >
+                    <ChevronLeft :size="28" />
+                </button>
+                <button 
+                    v-if="sliderImages.length > 1"
+                    @click="heroSliderIndex = (heroSliderIndex + 1) % sliderImages.length" 
+                    class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm transition-all shadow-lg"
+                >
+                    <ChevronRight :size="28" />
+                </button>
 
                 <!-- Dot Indicators -->
-                <div class="flex justify-center gap-2 mt-8">
+                <div v-if="sliderImages.length > 1" class="absolute bottom-8 left-0 right-0 z-20 flex justify-center gap-3">
                     <button
-                        v-for="(_, i) in serviceTotalItems"
+                        v-for="(_, i) in sliderImages.length"
                         :key="i"
-                        @click="goToService(i)"
-                        class="transition-all duration-300 rounded-full"
-                        :class="serviceIndex === i ? 'w-8 h-2.5 bg-brand-900' : 'w-2.5 h-2.5 bg-slate-300 hover:bg-brand-400'"
+                        @click="heroSliderIndex = i"
+                        class="transition-all duration-300 rounded-full h-2.5 shadow-sm"
+                        :class="heroSliderIndex === i ? 'w-10 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/80'"
                     />
-                </div>
-
-                <!-- View More Btn -->
-                <div class="mt-10 text-center">
-                    <Link 
-                        href="/services"
-                        class="inline-flex items-center justify-center space-x-3 bg-brand-900 text-white px-12 py-5 rounded-full font-bold text-xs uppercase tracking-[0.3em] transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-xl shadow-brand-900/20"
-                    >
-                        <span>view more service</span>
-                        <ArrowRight :size="20" />
-                    </Link>
                 </div>
             </section>
 
-            <!-- PRODUCT CAROUSEL SECTION -->
-            <section class="py-24 bg-white">
-                <div class="max-w-7xl mx-auto px-4 mb-12">
-                    <h2 class="text-sm font-bold text-brand-600 uppercase tracking-[0.2em] mb-4">Elite Apothecary</h2>
-                    <p class="text-4xl md:text-5xl font-serif text-slate-900">Featured Essentials</p>
+            <!-- SHOP BY CATEGORY SECTION -->
+            <section v-if="props.categories && props.categories.length > 0" class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 mb-12 text-center">
+                    <h2 class="text-4xl md:text-5xl font-serif text-slate-900 mb-2">Shop By Category</h2>
                 </div>
 
-                <div class="max-w-7xl mx-auto px-4 relative group/pslider">
+                <div class="max-w-7xl mx-auto px-4 relative group/catslider">
                     <!-- Navigation Overlays -->
                     <button 
-                        @click="scrollProduct('left')" 
-                        class="absolute -left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/pslider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
-                        :disabled="productIndex === 0"
+                        @click="scrollCategory('left')" 
+                        class="absolute -left-4 md:-left-6 top-[40%] -translate-y-1/2 z-20 p-3 md:p-4 rounded-full bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-slate-700 opacity-0 group-hover/catslider:opacity-100 transition-all hover:text-black disabled:opacity-0 flex items-center justify-center" 
+                        :disabled="categoryIndex === 0"
                     >
                         <ChevronLeft :size="24" />
                     </button>
                     <button 
-                        @click="scrollProduct('right')" 
-                        class="absolute -right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-white shadow-xl border border-brand-100 text-brand-900 opacity-0 group-hover/pslider:opacity-100 transition-all hover:bg-brand-900 hover:text-white disabled:hidden md:flex items-center justify-center hidden" 
-                        :disabled="productIndex >= productTotalItems - 1"
+                        @click="scrollCategory('right')" 
+                        class="absolute -right-4 md:-right-6 top-[40%] -translate-y-1/2 z-20 p-3 md:p-4 rounded-full bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-slate-700 opacity-0 group-hover/catslider:opacity-100 transition-all hover:text-black disabled:opacity-0 flex items-center justify-center" 
+                        :disabled="categoryIndex >= categoryTotalItems - 1"
                     >
                         <ChevronRight :size="24" />
                     </button>
 
                     <div 
-                        ref="productScrollRef"
+                        ref="categoryScrollRef"
                         class="flex overflow-x-auto gap-8 no-scrollbar scroll-smooth pb-8"
                     >
-                        <div 
-                            v-for="product in props.products"
-                            :key="product.id" 
-                            class="min-w-[300px] md:min-w-[350px] group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-brand-100 flex flex-col"
+                        <Link 
+                            v-for="category in props.categories"
+                            :key="category.id" 
+                            :href="`/products?category=${category.slug}`"
+                            class="min-w-[260px] md:min-w-[280px] flex flex-col group block"
                         >
-                            <div class="h-64 overflow-hidden relative">
-                                <img :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://images.unsplash.com/photo-1596462502278-27bfad450526?auto=format&fit=crop&q=80&w=800'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" :alt="product.name" />
-                                <div class="absolute top-6 left-6 bg-white/90 backdrop-blur p-2.5 rounded-xl text-brand-900 shadow-md">
-                                    <Tag :size="18" />
-                                </div>
+                            <div class="aspect-square mb-6 rounded-3xl overflow-hidden bg-[#F8F9FA] relative transition-transform duration-500 group-hover:-translate-y-2">
+                                <img 
+                                    :src="category.image_url || 'https://placehold.co/600x600/F8F9FA/CBD5E1?text=' + category.name" 
+                                    :alt="category.name" 
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
                             </div>
-                            <div class="p-8 flex-grow flex flex-col items-center text-center">
-                                <p class="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-2">{{ product.category_item?.name || product.category }}</p>
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{{ product.brand }}</p>
-                                <h3 class="text-xl font-serif text-slate-900 mb-4 truncate w-full">{{ product.name }}</h3>
-                                <p class="text-2xl font-bold text-brand-900 mb-6">৳{{ product.price }}</p>
-                                
-                                <div class="flex items-center gap-3 w-full">
-                                    <button 
-                                        @click="addToCart(product)"
-                                        class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-50 text-brand-900 px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-900 hover:text-white shadow-sm"
-                                    >
-                                        <ShoppingCart :size="14" />
-                                        <span>Add</span>
-                                    </button>
-                                    <button 
-                                        @click="buyNow(product)"
-                                        class="flex-1 inline-flex items-center justify-center space-x-2 bg-brand-900 text-white px-4 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest transition-all hover:bg-brand-800 shadow-md"
-                                    >
-                                        <Zap :size="14" />
-                                        <span>Buy</span>
-                                    </button>
-                                    <Link 
-                                        :href="`/products/${product.id}`" 
-                                        class="p-3 bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200 transition-all"
-                                    >
-                                        <ArrowRight :size="14" />
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    
-                    <div class="min-w-[300px] md:min-w-[350px] flex flex-col items-center justify-center p-12 bg-brand-50 rounded-3xl border-2 border-dashed border-brand-200 group hover:border-brand-900 transition-colors">
-                        <Link href="/products" class="text-center group flex flex-col items-center">
-                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl transition-transform group-hover:scale-110 group-hover:bg-brand-900 group-hover:text-white">
-                                <ShoppingBag :size="28" />
-                            </div>
-                            <h3 class="text-2xl font-serif text-slate-900 mb-2">Explore All</h3>
-                            <p class="text-slate-500 mb-6 text-sm">Discover our full curated collection</p>
-                            <div class="flex items-center space-x-2 text-brand-900 font-bold uppercase text-xs tracking-[0.2em]">
-                                <span>Visit Apothecary</span>
-                                <ArrowRight :size="16" />
+                            <div class="text-center">
+                                <h3 class="text-xl text-slate-900 font-medium mb-1 group-hover:text-brand-900 transition-colors">{{ category.name }}</h3>
+                                <p class="text-sm text-slate-500">{{ category.products_count }} items</p>
                             </div>
                         </Link>
                     </div>
-                    </div>
                 </div>
 
                 <!-- Dot Indicators -->
-                <div class="flex justify-center gap-2 mt-8">
+                <div class="flex justify-center gap-2 mt-4">
                     <button
-                        v-for="(_, i) in productTotalItems"
+                        v-for="(_, i) in categoryTotalItems"
                         :key="i"
-                        @click="goToProduct(i)"
+                        @click="goToCategory(i)"
                         class="transition-all duration-300 rounded-full"
-                        :class="productIndex === i ? 'w-8 h-2.5 bg-brand-900' : 'w-2.5 h-2.5 bg-slate-300 hover:bg-brand-400'"
+                        :class="categoryIndex === i ? 'w-2.5 h-2.5 bg-slate-400' : 'w-2.5 h-2.5 bg-slate-200 hover:bg-slate-300'"
                     />
                 </div>
-                
-                <div class="mt-10 text-center">
-                    <Link 
-                        href="/products"
-                        class="inline-flex items-center justify-center space-x-3 bg-brand-900 text-white px-12 py-5 rounded-full font-bold text-xs uppercase tracking-[0.3em] transition-all hover:bg-brand-800 hover:scale-105 active:scale-95 shadow-xl shadow-brand-900/20"
-                    >
-                        <span>view more product</span>
-                        <ArrowRight :size="20" />
-                    </Link>
+            </section>
+
+            <!-- FEATURED PRODUCTS SECTION -->
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10">
+                        <h2 class="text-4xl md:text-5xl font-serif text-slate-900 mb-8">Featured Products</h2>
+                        
+                        <!-- Category Tabs -->
+                        <div class="flex flex-wrap justify-center gap-3 mb-12">
+                            <button 
+                                v-for="cat in featuredCategories" 
+                                :key="cat"
+                                @click="activeFeaturedCategory = cat"
+                                class="px-5 py-2 rounded-full text-sm font-semibold transition-all border"
+                                :class="activeFeaturedCategory === cat ? 'bg-[#FF007F] text-white border-[#FF007F]' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'"
+                            >
+                                {{ cat }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div 
+                            v-for="product in featuredProductsList" 
+                            :key="product.id"
+                            @click="router.visit('/products/' + product.id)"
+                            class="bg-white rounded-3xl overflow-hidden group flex flex-col relative cursor-pointer border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                        >
+                            <!-- Badge -->
+                            <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 z-10 bg-[#FF007F] text-white text-[10px] font-bold px-2 py-1 rounded">
+                                {{ Math.round(((Number(product.price) - Number(product.offer_price)) / Number(product.price)) * 100) }}% OFF
+                            </div>
+                            
+                            <!-- Image -->
+                            <div class="aspect-square bg-[#F8F9FA] rounded-3xl overflow-hidden relative flex items-center justify-center p-4 mb-4">
+                                <img 
+                                    :src="(Array.isArray(product.image_url) ? product.image_url[0] : product.image_url) || 'https://placehold.co/400x400/F8F9FA/CBD5E1?text=' + product.name" 
+                                    :alt="product.name"
+                                    class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="px-2 pb-4 flex-grow flex flex-col">
+                                <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">{{ product.brand }}</p>
+                                <h3 class="text-[15px] font-medium text-slate-800 leading-snug mb-3 flex-grow">{{ product.name }}</h3>
+                                
+                                <!-- Price & Review Star -->
+                                <div class="mt-2">
+                                    <!-- Review Star -->
+                                    <div class="h-5 flex items-center mb-1.5">
+                                        <div v-if="product.reviews_count > 0" class="flex items-center gap-1 text-[#FFD700]">
+                                            <template v-for="i in 5" :key="i">
+                                                <svg class="w-3.5 h-3.5" :class="i <= Math.round(Number(product.reviews_avg_rating)) ? 'fill-current' : 'text-slate-200'" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            </template>
+                                            <span class="text-[10px] text-slate-400 ml-1">({{ product.reviews_count }})</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Price Section Horizontally -->
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <template v-if="Number(product.offer_price) > 0">
+                                            <span class="text-[#FF007F] text-lg font-bold">৳{{ Number(product.offer_price) }}</span>
+                                            <span class="text-slate-400 text-sm line-through decoration-slate-300">৳{{ Number(product.price) }}</span>
+                                        </template>
+                                        <template v-else>
+                                            <span class="text-[#FF007F] text-lg font-bold">৳{{ Number(product.price) }}</span>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions Underneath -->
+                                <div class="flex items-center gap-3 mt-4">
+                                    <button 
+                                        @click.stop="addToCart(product)"
+                                        class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-900 text-xs font-bold py-3 rounded-xl transition-all border border-brand-200 text-center"
+                                    >
+                                        Add to Cart
+                                    </button>
+                                    <button 
+                                        @click.stop="buyNow(product)"
+                                        class="flex-1 bg-[#FCE69C] hover:bg-[#F3D77A] text-slate-800 text-xs font-bold py-3 rounded-xl transition-all text-center shadow-md"
+                                    >
+                                        Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 text-center">
+                        <Link 
+                            href="/products"
+                            class="inline-block bg-white text-slate-800 border border-slate-300 px-10 py-2.5 rounded-full text-sm font-semibold hover:border-slate-400 hover:bg-slate-50 transition-colors"
+                        >
+                            See All
+                        </Link>
+                    </div>
                 </div>
             </section>
 
@@ -516,5 +496,15 @@ const buyNow = (product: any) => {
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+/* Fade transition for hero slider */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 1s ease-in-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

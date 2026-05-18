@@ -23,6 +23,7 @@
         <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_categories_table">
             <thead>
                 <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                    <th class="min-w-150px">Image</th>
                     <th class="min-w-150px">Name</th>
                     <th class="min-w-100px">Slug</th>
                     <th class="min-w-100px">Status</th>
@@ -32,6 +33,17 @@
             <tbody class="fw-semibold text-gray-600">
                 @foreach($categories as $category)
                 <tr>
+                    <td>
+                        @if($category->image_url)
+                            <div class="symbol symbol-50px">
+                                <img src="{{ $category->image_url }}" alt="image"/>
+                            </div>
+                        @else
+                            <div class="symbol symbol-50px">
+                                <div class="symbol-label bg-light-primary text-primary fs-3 fw-bold">{{ substr($category->name, 0, 1) }}</div>
+                            </div>
+                        @endif
+                    </td>
                     <td>{{ $category->name }}</td>
                     <td>{{ $category->slug }}</td>
                     <td>
@@ -62,7 +74,7 @@
                 <div class="modal fade" id="kt_modal_edit_category_{{ $category->id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered mw-650px">
                         <div class="modal-content">
-                            <form action="{{ route('admin.update', ['table' => 'categories', 'id' => $category->id]) }}" method="POST">
+                            <form action="{{ route('admin.update', ['table' => 'categories', 'id' => $category->id]) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="modal-header">
                                     <h2 class="fw-bold">Edit Category</h2>
@@ -74,6 +86,16 @@
                                     <div class="fv-row mb-7">
                                         <label class="required fs-6 fw-semibold mb-2">Category Name</label>
                                         <input type="text" class="form-control form-control-solid" name="name" value="{{ $category->name }}" required />
+                                    </div>
+                                    <div class="fv-row mb-7">
+                                        <label class="fs-6 fw-semibold mb-2">Category Image</label>
+                                        <div class="text-primary fs-7 mb-2">** Recommended aspect ratio is 1:1 (Square). E.g., 600x600 px.</div>
+                                        <input type="file" class="form-control form-control-solid" name="image" accept="image/*" onchange="previewImage(this, 'edit_category_preview_{{ $category->id }}')" />
+                                        <div id="edit_category_preview_{{ $category->id }}" class="mt-2">
+                                            @if($category->image_url)
+                                                <img src="{{ $category->image_url }}" alt="Current Image" class="w-100px rounded" />
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="fv-row mb-7">
                                         <label class="fs-6 fw-semibold mb-2">Status</label>
@@ -107,7 +129,7 @@
 <div class="modal fade" id="kt_modal_add_category" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <div class="modal-content">
-            <form action="{{ route('admin.store', ['table' => 'categories']) }}" method="POST">
+            <form action="{{ route('admin.store', ['table' => 'categories']) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
                     <h2 class="fw-bold">Add Category</h2>
@@ -120,6 +142,12 @@
                         <label class="required fs-6 fw-semibold mb-2">Category Name</label>
                         <input type="text" class="form-control form-control-solid" name="name" required />
                     </div>
+                    <div class="fv-row mb-7">
+                        <label class="fs-6 fw-semibold mb-2">Category Image</label>
+                        <div class="text-primary fs-7 mb-2">** Recommended aspect ratio is 1:1 (Square). E.g., 600x600 px.</div>
+                        <input type="file" class="form-control form-control-solid" name="image" accept="image/*" onchange="previewImage(this, 'add_category_preview')" />
+                        <div id="add_category_preview" class="mt-2"></div>
+                    </div>
                 </div>
                 <div class="modal-footer flex-center">
                     <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</button>
@@ -130,3 +158,23 @@
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+    function previewImage(input, previewId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                let previewContainer = document.getElementById(previewId);
+                let img = previewContainer.querySelector('img');
+                if(!img) {
+                    previewContainer.innerHTML = '<img src="' + e.target.result + '" alt="Preview" class="w-100px rounded" />';
+                } else {
+                    img.src = e.target.result;
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+@endpush

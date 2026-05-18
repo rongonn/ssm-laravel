@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use SSM\Models\Product;
 use SSM\Models\Category;
 use SSM\Models\Order;
+use SSM\Models\ProductReview;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -14,7 +15,10 @@ class ProductController extends Controller
     public function index()
     {
         return Inertia::render('SSM/Products/Index', [
-            'products' => Product::with('categoryItem')->where('is_active', true)->get(),
+            'products' => Product::with('categoryItem')
+                ->withCount(['reviews' => function($q) { $q->where('is_approved', true); }])
+                ->withAvg(['reviews' => function($q) { $q->where('is_approved', true); }], 'rating')
+                ->where('is_active', true)->get(),
             'categories' => Category::where('is_active', true)->get(),
         ]);
     }
@@ -36,8 +40,32 @@ class ProductController extends Controller
         return Inertia::render('SSM/Products/Show', [
             'id' => $id,
             'product' => $product,
+            'reviews' => ProductReview::where('product_id', $id)->where('is_approved', true)->latest()->get(),
             'relatedProducts' => $relatedQuery->limit(6)->get(),
         ]);
+    }
+
+    public function storeReview(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'mobile' => 'nullable|string|max:20',
+            'age' => 'nullable|integer|min:1',
+            'rating' => 'required|integer|min:1|max:5',
+            'review_text' => 'nullable|string',
+        ]);
+
+        ProductReview::create([
+            'product_id' => $id,
+            'name' => $request->name,
+            'mobile' => $request->mobile,
+            'age' => $request->age,
+            'rating' => $request->rating,
+            'review_text' => $request->review_text,
+            'is_approved' => false,
+        ]);
+
+        return back()->with('success', 'Review submitted successfully!');
     }
 
     public function checkout()
@@ -61,7 +89,7 @@ class ProductController extends Controller
 
         foreach ($request->items as $item) {
             $product = Product::findOrFail($item['id']);
-            $price = (float) $product->price;
+            $price = ((float) $product->offer_price > 0) ? (float) $product->offer_price : (float) $product->price;
             $quantity = (int) $item['quantity'];
             $subtotal += $price * $quantity;
             

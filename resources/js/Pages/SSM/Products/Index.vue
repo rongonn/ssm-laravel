@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { Search, ShoppingBag, ArrowRight, SlidersHorizontal, X, ChevronDown, ShoppingCart, Zap } from 'lucide-vue-next';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
@@ -24,6 +24,19 @@ const priceMin = ref(0);
 const priceMax = ref(10000);
 const inStockOnly = ref(false);
 const mobileSidebarOpen = ref(false);
+
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    const catParam = params.get('category');
+    if (catParam) {
+        const matchedCat = props.categories.find((c: any) => c.slug === catParam || c.name === catParam);
+        if (matchedCat) {
+            selectedCategory.value = matchedCat.name;
+        } else {
+            selectedCategory.value = catParam;
+        }
+    }
+});
 
 // Derive unique categories and brands from data
 const allCategories = computed(() => {
@@ -296,26 +309,6 @@ const buyNow = (product: any) => {
                                     </div>
                                 </div>
 
-                                <!-- Divider -->
-                                <div class="h-px bg-slate-100"></div>
-
-                                <!-- In Stock Only -->
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-700">In Stock Only</p>
-                                        <p class="text-xs text-slate-400">Show available items</p>
-                                    </div>
-                                    <button
-                                        @click="inStockOnly = !inStockOnly"
-                                        class="relative w-12 h-6 rounded-full transition-all flex-shrink-0"
-                                        :class="inStockOnly ? 'bg-brand-900' : 'bg-slate-200'"
-                                    >
-                                        <div
-                                            class="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all"
-                                            :class="inStockOnly ? 'left-7' : 'left-1'"
-                                        ></div>
-                                    </button>
-                                </div>
 
                             </div>
                         </div>
@@ -342,10 +335,6 @@ const buyNow = (product: any) => {
                                     Sorted
                                     <button @click="sortBy = 'default'"><X :size="12" /></button>
                                 </span>
-                                <span v-if="inStockOnly" class="inline-flex items-center gap-1.5 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">
-                                    In Stock
-                                    <button @click="inStockOnly = false"><X :size="12" /></button>
-                                </span>
                             </div>
                         </div>
 
@@ -361,7 +350,8 @@ const buyNow = (product: any) => {
                             <div
                                 v-for="product in filteredProducts"
                                 :key="product.id"
-                                class="group bg-white rounded-[2rem] overflow-hidden border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
+                                @click="router.visit('/products/' + product.id)"
+                                class="group bg-white rounded-[2rem] overflow-hidden border border-brand-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col cursor-pointer"
                             >
                                 <div class="aspect-[4/3] overflow-hidden relative">
                                     <img
@@ -372,41 +362,53 @@ const buyNow = (product: any) => {
                                     <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-brand-900 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
                                         {{ product.category_item?.name || product.category }}
                                     </div>
-                                    <div v-if="Number(product.stock) <= 0" class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase">
-                                        Sold Out
+                                    <div v-if="Number(product.offer_price) > 0" class="absolute top-4 right-4 bg-[#FF007F] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+                                        {{ Math.round(((Number(product.price) - Number(product.offer_price)) / Number(product.price)) * 100) }}% OFF
                                     </div>
                                 </div>
 
                                 <div class="p-6 flex-grow flex flex-col">
                                     <p class="text-[10px] font-black text-brand-500 uppercase tracking-[0.3em] mb-1">{{ product.brand }}</p>
                                     <h3 class="text-lg font-serif text-slate-900 leading-tight mb-2 flex-grow">{{ product.name }}</h3>
-                                    <div class="flex items-center gap-2 mt-4">
-                                        <div class="flex-grow">
-                                            <p class="text-xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
+                                    
+                                    <!-- Price & Review Star -->
+                                    <div class="mt-4">
+                                        <!-- Review Star -->
+                                        <div class="h-5 flex items-center mb-1.5">
+                                            <div v-if="product.reviews_count > 0" class="flex items-center gap-1 text-[#FFD700]">
+                                                <template v-for="i in 5" :key="i">
+                                                    <svg class="w-3.5 h-3.5" :class="i <= Math.round(Number(product.reviews_avg_rating)) ? 'fill-current' : 'text-slate-200'" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                </template>
+                                                <span class="text-[10px] text-slate-400 ml-1">({{ product.reviews_count }})</span>
+                                            </div>
                                         </div>
-                                        <div class="flex items-center gap-2">
-                                            <button 
-                                                @click="addToCart(product)"
-                                                class="p-2.5 bg-brand-50 text-brand-900 rounded-xl hover:bg-brand-900 hover:text-white transition-all shadow-sm"
-                                                title="Add to Cart"
-                                            >
-                                                <ShoppingCart :size="18" />
-                                            </button>
-                                            <button 
-                                                @click="buyNow(product)"
-                                                class="p-2.5 bg-brand-900 text-white rounded-xl hover:bg-brand-800 hover:scale-105 transition-all shadow-md"
-                                                title="Order Now"
-                                            >
-                                                <Zap :size="18" />
-                                            </button>
-                                            <Link
-                                                :href="`/products/${product.id}`"
-                                                class="p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-all"
-                                                title="View Details"
-                                            >
-                                                <ArrowRight :size="18" />
-                                            </Link>
+                                        
+                                        <!-- Price Section Horizontally -->
+                                        <div class="flex items-center gap-2.5">
+                                            <template v-if="Number(product.offer_price) > 0">
+                                                <p class="text-xl font-bold text-brand-900">৳{{ Number(product.offer_price).toFixed(2) }}</p>
+                                                <span class="text-sm text-slate-400 line-through">৳{{ Number(product.price).toFixed(2) }}</span>
+                                            </template>
+                                            <template v-else>
+                                                <p class="text-xl font-bold text-brand-900">৳{{ Number(product.price).toFixed(2) }}</p>
+                                            </template>
                                         </div>
+                                    </div>
+
+                                    <!-- Action Buttons Underneath -->
+                                    <div class="flex items-center gap-3 mt-5">
+                                        <button 
+                                            @click.stop="addToCart(product)"
+                                            class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-900 text-xs font-bold py-3 rounded-xl transition-all border border-brand-200 text-center"
+                                        >
+                                            Add to Cart
+                                        </button>
+                                        <button 
+                                            @click.stop="buyNow(product)"
+                                            class="flex-1 bg-brand-900 hover:bg-brand-800 text-white text-xs font-bold py-3 rounded-xl transition-all text-center shadow-md shadow-brand-900/10"
+                                        >
+                                            Order
+                                        </button>
                                     </div>
                                 </div>
                             </div>

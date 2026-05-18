@@ -9,6 +9,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/services/{id}', [SSM\Http\Controllers\ServiceController::class, 'show'])->name('services.show');
     Route::get('/products', [SSM\Http\Controllers\ProductController::class, 'index'])->name('products');
     Route::get('/products/{id}', [SSM\Http\Controllers\ProductController::class, 'show'])->name('products.show');
+    Route::post('/products/{id}/reviews', [SSM\Http\Controllers\ProductController::class, 'storeReview'])->name('products.reviews.store');
     Route::get('/gallery', [SSM\Http\Controllers\GalleryController::class, 'index'])->name('gallery');
     Route::get('/about', [SSM\Http\Controllers\AboutController::class, 'index'])->name('about');
     Route::get('/about/team/{id}', [SSM\Http\Controllers\AboutController::class, 'teamMember'])->name('about.team');
@@ -41,6 +42,9 @@ Route::middleware(['web'])->group(function () {
         Route::post('/product/{id}/toggle', [AdminDashboardController::class, 'toggleProductStatus'])->name('admin.products.toggle');
         Route::post('/product/{id}/images/add', [AdminDashboardController::class, 'addProductImage'])->name('admin.products.image.add');
         Route::post('/product/{id}/images/remove', [AdminDashboardController::class, 'removeProductImage'])->name('admin.products.image.remove');
+        
+        Route::get('/reviews', [AdminDashboardController::class, 'reviewsIndex'])->name('admin.reviews');
+        Route::post('/reviews/{id}/toggle', [AdminDashboardController::class, 'toggleReviewStatus'])->name('admin.reviews.toggle');
     });
 
     // Front-end Product Purchase
